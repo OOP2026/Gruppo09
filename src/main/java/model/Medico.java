@@ -2,7 +2,7 @@ package model;
 
 public class Medico extends Utente {
 
-    String matricola;
+    public String matricola;
 
     public Medico(String username, String password, String matricola) {
         super(username, password);

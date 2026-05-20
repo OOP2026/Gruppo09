@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Utente {
 
-    String username;
-    String password;
+    public String username;
+    public String password;
 
     public Utente(String username, String password) {
         this.username = username;
