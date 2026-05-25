@@ -3,6 +3,7 @@ package model;
 public class Medico extends Utente {
 
     public String matricola;
+    public Reparto reparto; // Riferimento al reparto a cui afferisce il medico
 
     public Medico(String username, String password, String matricola) {
         super(username, password);
@@ -32,6 +33,7 @@ public class Medico extends Utente {
     }
 
     public void mostraInfo() {
-        System.out.println("Medico: " + username + " | Matricola: " + matricola);
+        String nomeReparto = (reparto != null) ? reparto.nome : "Nessun reparto";
+        System.out.println("Medico: " + username + " | Matricola: " + matricola + " | Reparto: " + nomeReparto);
     }
 }

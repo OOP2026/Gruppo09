@@ -24,6 +24,9 @@ public class TestModel {
 		stanza.letti.add(letto);
 		reparto.stanze.add(stanza);
 
+		// Assegnazione del medico al relativo reparto di appartenenza
+		reparto.aggiungiMedico(medico);
+
 		// Mostra info struttura
 		reparto.mostraInfo();
 		stanza.mostraInfo();
