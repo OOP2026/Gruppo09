@@ -46,7 +46,7 @@ public class MedicoPanel extends JPanel {
         btnLogout.addActionListener(e -> {
             controller.logout();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.setContentPane(new LoginPanel());
+            frame.setContentPane(new LoginPanel(controller));
             frame.revalidate();
         });
     }

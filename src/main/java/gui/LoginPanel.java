@@ -11,8 +11,10 @@ public class LoginPanel extends JPanel {
     private JTextField txtUsernameTextField;
     private JPasswordField txtPasswordPasswordField;
     private JButton bntloginButton;
+    private Controller controller;
 
-    public LoginPanel() {
+    public LoginPanel(Controller controller) {
+        this.controller = controller;
         add(mainPanel);
 
         bntloginButton.addActionListener(e -> {
@@ -24,16 +26,15 @@ public class LoginPanel extends JPanel {
                 return;
             }
 
-            Controller controller = new Controller();
-            String ruolo = controller.login(username, password);
+            String ruolo = this.controller.login(username, password);
 
             if (ruolo.equals("admin")) {
                 JOptionPane.showMessageDialog(null, "Benvenuto Admin: " + username);
-                apriAdmin(controller);
+                apriAdmin(this.controller);
 
             } else if (ruolo.equals("medico")) {
                 JOptionPane.showMessageDialog(null, "Benvenuto Medico: " + username);
-                apriMedico(controller);
+                apriMedico(this.controller);
 
             } else {
                 JOptionPane.showMessageDialog(null, "Username o password errati!",
@@ -96,5 +97,4 @@ public class LoginPanel extends JPanel {
     public JComponent $$$getRootComponent$$$() {
         return mainPanel;
     }
-
 }

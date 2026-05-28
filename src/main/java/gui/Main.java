@@ -1,5 +1,6 @@
 package gui;
 
+import controller.Controller;
 import javax.swing.*;
 
 public class Main {
@@ -9,7 +10,10 @@ public class Main {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(500, 400);
             frame.setLocationRelativeTo(null);
-            frame.setContentPane(new LoginPanel());
+
+            Controller controller = new Controller();
+
+            frame.setContentPane(new LoginPanel(controller));
             frame.setVisible(true);
         });
     }
