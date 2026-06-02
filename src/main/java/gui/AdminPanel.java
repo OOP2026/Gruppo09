@@ -1,46 +1,60 @@
 package gui;
 
 import controller.Controller;
-
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.ActionEvent;   //
+import java.awt.event.ActionListener; //
 
-public class AdminPanel extends JPanel {
+public class AdminPanel {
+
+    private JPanel mainPanel;
+    private JButton btnGestisciPazienti;
+    private JButton btnGestisciRicoveri;
+    private JButton btnElencoSostituzioni;
+    private JButton btnLogout;
+    private Controller controller;
 
     public AdminPanel(Controller controller) {
-        setLayout(new GridLayout(4, 1, 10, 10));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        this.controller = controller;
 
-        JButton btnGestisciPazienti = new JButton("Gestisci Pazienti");
-        JButton btnGestisciRicoveri = new JButton("Gestisci Ricoveri");
-        JButton btnElencoSostituzioni = new JButton("Elenco Sostituzioni");
-        JButton btnLogout = new JButton("Logout");
 
-        add(btnGestisciPazienti);
-        add(btnGestisciRicoveri);
-        add(btnElencoSostituzioni);
-        add(btnLogout);
-
-        btnGestisciPazienti.addActionListener(e -> {
-            controller.gestisciPazienti();
-            JOptionPane.showMessageDialog(null, "Gestione pazienti avviata!");
+        btnGestisciPazienti.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AdminPanel.this.controller.gestisciPazienti();
+                JOptionPane.showMessageDialog(null, "Gestione pazienti avviata!");
+            }
         });
 
-        btnGestisciRicoveri.addActionListener(e -> {
-            controller.gestisciRicoveri();
-            JOptionPane.showMessageDialog(null, "Gestione ricoveri avviata!");
+
+        btnGestisciRicoveri.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AdminPanel.this.controller.gestisciRicoveri();
+                JOptionPane.showMessageDialog(null, "Gestione ricoveri avviata!");
+            }
         });
 
-        btnElencoSostituzioni.addActionListener(e -> {
-            controller.elencoSostituzioni();
-            JOptionPane.showMessageDialog(null, "Ricerca sostituzioni avviata!");
+        btnElencoSostituzioni.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AdminPanel.this.controller.elencoSostituzioni();
+                JOptionPane.showMessageDialog(null, "Ricerca sostituzioni avviata!");
+            }
         });
 
-        btnLogout.addActionListener(e -> {
-            controller.logout();
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.setContentPane(new LoginPanel(controller));
-            frame.revalidate();
+        btnLogout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AdminPanel.this.controller.logout();
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(mainPanel);
+                frame.setContentPane(new LoginPanel(AdminPanel.this.controller).getMainPanel());
+                frame.revalidate();
+            }
         });
+    }
+
+    public JPanel getMainPanel() {
+        return mainPanel;
     }
 }

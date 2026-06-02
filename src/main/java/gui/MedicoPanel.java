@@ -1,53 +1,71 @@
 package gui;
 
 import controller.Controller;
-
 import javax.swing.*;
-import java.awt.*;
+import java.awt.event.ActionEvent;   //
+import java.awt.event.ActionListener; //
 
-public class MedicoPanel extends JPanel {
+public class MedicoPanel {
+
+    private JPanel mainPanel;
+    private JButton btnAgendaGiornaliera;
+    private JButton btnAgendaSettimanale;
+    private JButton btnRegistraPrestazione;
+    private JButton btnDisponibilità;
+    private JButton btnLogout;
+    private Controller controller;
 
     public MedicoPanel(Controller controller) {
-        setLayout(new GridLayout(5, 1, 10, 10));
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        this.controller = controller;
 
-        JButton btnAgendaGiornaliera = new JButton("Agenda Giornaliera");
-        JButton btnAgendaSettimanale = new JButton("Agenda Settimanale");
-        JButton btnRegistraPrestazione = new JButton("Registra Prestazione");
-        JButton btnDisponibilita = new JButton("Disponibilità");
-        JButton btnLogout = new JButton("Logout");
-
-        add(btnAgendaGiornaliera);
-        add(btnAgendaSettimanale);
-        add(btnRegistraPrestazione);
-        add(btnDisponibilita);
-        add(btnLogout);
-
-        btnAgendaGiornaliera.addActionListener(e -> {
-            controller.agendaGiornaliera();
-            JOptionPane.showMessageDialog(null, "Agenda giornaliera avviata!");
+        btnAgendaGiornaliera.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MedicoPanel.this.controller.agendaGiornaliera();
+                JOptionPane.showMessageDialog(null, "Agenda giornaliera avviata!");
+            }
         });
 
-        btnAgendaSettimanale.addActionListener(e -> {
-            controller.agendaSettimanale();
-            JOptionPane.showMessageDialog(null, "Agenda settimanale avviata!");
+
+        btnAgendaSettimanale.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MedicoPanel.this.controller.agendaSettimanale();
+                JOptionPane.showMessageDialog(null, "Agenda settimanale avviata!");
+            }
         });
 
-        btnRegistraPrestazione.addActionListener(e -> {
-            controller.registraPrestazione();
-            JOptionPane.showMessageDialog(null, "Registrazione prestazione avviata!");
+
+        btnRegistraPrestazione.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MedicoPanel.this.controller.registraPrestazione();
+                JOptionPane.showMessageDialog(null, "Registrazione prestazione avviata!");
+            }
         });
 
-        btnDisponibilita.addActionListener(e -> {
-            controller.disponibilita();
-            JOptionPane.showMessageDialog(null, "Disponibilità avviata!");
+
+        btnDisponibilità.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MedicoPanel.this.controller.disponibilita();
+                JOptionPane.showMessageDialog(null, "Disponibilità avviata!");
+            }
         });
 
-        btnLogout.addActionListener(e -> {
-            controller.logout();
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            frame.setContentPane(new LoginPanel(controller));
-            frame.revalidate();
+
+        btnLogout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                MedicoPanel.this.controller.logout();
+                JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(mainPanel);
+                frame.setContentPane(new LoginPanel(MedicoPanel.this.controller).getMainPanel());
+                frame.revalidate();
+            }
         });
+    }
+
+    public JPanel getMainPanel() {
+        return mainPanel;
     }
 }

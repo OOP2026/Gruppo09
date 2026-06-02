@@ -28,7 +28,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="txtUsername"/>
+          <text value=""/>
         </properties>
       </component>
       <component id="7783" class="javax.swing.JLabel">
@@ -46,15 +46,15 @@
           </grid>
         </constraints>
         <properties>
-          <text value="txtPassword"/>
+          <text value=""/>
         </properties>
       </component>
-      <component id="e81a9" class="javax.swing.JButton" binding="bntloginButton" default-binding="true">
+      <component id="e81a9" class="javax.swing.JButton" binding="btnloginButton">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="bntlogin"/>
+          <text value="Login"/>
         </properties>
       </component>
     </children>
