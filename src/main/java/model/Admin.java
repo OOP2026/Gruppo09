@@ -1,4 +1,6 @@
 package model;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Admin extends Utente {
 
@@ -6,22 +8,30 @@ public class Admin extends Utente {
         super(username, password);
     }
 
-    public void gestisciPazienti() {
-        System.out.println("Gestione pazienti avviata dall'amministratore: " + username);
+    public boolean gestisciPazienti(Paziente paziente) {
+        System.out.println("DB Operazione: Inserimento/Modifica nel database del paziente: " + paziente.getNome());
+        return true;
         // logica di inserimento e modifica anagrafica pazienti
+        //restituisce true se sul DB l'operazione è andata a buon fine
     }
 
-    public void gestisciRicoveri() {
-        System.out.println("Gestione ricoveri avviata dall'amministratore: " + username);
+    public boolean gestisciRicoveri(Ricovero ricovero) {
+        System.out.println("DB Operazione: Validazione e inserimento ricovero per il letto: " + ricovero.getLetto().getID_letto());
+        return true;
         // logica di registrazione ricoveri con controllo sovrapposizione letti
+        //True se il letto è libero
     }
 
-    public void elencoSostituzioni() {
-        System.out.println("Ricerca medici sostitutivi avviata dall'amministratore: " + username);
-        // logica di ricerca medici dello stesso reparto senza turni sovrapposti
+
+    public List<Medico> elencoSostituzioni(AssenzaMedico assenza) {
+        System.out.println("DB Query: Ricerca medici dello stesso reparto liberi durante l'assenza di: " + assenza.getMedico().getUsername());
+        return new ArrayList<Medico>();
+        // Riceve l'oggetto della malattia inserito e RESTITUISCE una lista reale
+        // di Medici sostitutivi
     }
 
+    @Override
     public void mostraInfo() {
-        System.out.println("Amministratore: " + username);
+        System.out.println("Amministratore: " + getUsername());
     }
 }

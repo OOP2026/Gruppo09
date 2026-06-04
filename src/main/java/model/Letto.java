@@ -2,8 +2,8 @@ package model;
 
 public class Letto {
 
-    int ID_letto;
-    boolean occupato;
+    private int ID_letto;
+    private boolean occupato;
 
     public Letto(int ID_letto) {
         this.ID_letto = ID_letto;
@@ -16,5 +16,23 @@ public class Letto {
         } else {
             System.out.println("Letto ID: " + ID_letto + " | Stato: LIBERO");
         }
+    }
+
+    //Getter & Setter
+
+    public int getID_letto() {
+        return ID_letto;
+    }
+
+    public void setID_letto(int ID_letto) {
+        this.ID_letto = ID_letto;
+    }
+
+    public boolean isOccupato() {
+        return occupato;
+    }
+
+    public void setOccupato(boolean occupato) {
+        this.occupato = occupato;
     }
 }

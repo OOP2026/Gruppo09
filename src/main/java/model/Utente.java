@@ -1,11 +1,9 @@
 package model;
 
-import java.util.ArrayList;
-
 public class Utente {
 
-    public String username;
-    public String password;
+    private String username;
+    private String password;
 
     public Utente(String username, String password) {
         this.username = username;
@@ -14,10 +12,8 @@ public class Utente {
 
     public boolean login(String username, String password) {
         if (this.username.equals(username) && this.password.equals(password)) {
-            System.out.println("Accesso effettuato con successo!");
             return true;
         } else {
-            System.out.println("Username o password errati.");
             return false;
         }
     }
@@ -25,4 +21,24 @@ public class Utente {
     public void mostraInfo() {
         System.out.println("Utente: " + username);
     }
+
+
+    //Getter & Setter
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
+

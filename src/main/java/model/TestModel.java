@@ -7,36 +7,36 @@ public class TestModel {
 
 	public static void main(String[] args) {
 
-		// Creazione utenti
+		// Inizializzazione degli utenti e della struttura ospedaliera di test
 		Admin admin = new Admin("admin1", "pass123");
-		Medico medico = new Medico("mario.rossi", "pass456", "MAT001");
+		Reparto reparto = new Reparto(1, "Cardiologia");
+		Medico medico = new Medico("mario.rossi", "pass456", "MAT001", reparto);
 
-		// Test login
+		// Esecuzione delle procedure di autenticazione per le diverse tipologie di utenza
 		admin.login("admin1", "pass123");
 		medico.login("mario.rossi", "pass456");
 
-		// Creazione struttura ospedaliera
-		Reparto reparto = new Reparto(1, "Cardiologia");
+		// Configurazione della struttura fisica delle stanze e dei relativi posti letto
 		Stanza stanza = new Stanza(101, 3);
 		Letto letto = new Letto(1);
 
-		// Collegamento struttura
-		stanza.letti.add(letto);
-		reparto.stanze.add(stanza);
+		// Associazione delle entità della struttura ospedaliera tramite l'uso dei rispettivi metodi getter
+		stanza.getLetti().add(letto);
+		reparto.getStanze().add(stanza);
 
-		// Assegnazione del medico al relativo reparto di appartenenza
+		// Assegnazione del personale medico al reparto di afferenza con gestione della coerenza bidirezionale
 		reparto.aggiungiMedico(medico);
 
-		// Mostra info struttura
+		// Visualizzazione a console dei dati strutturali complessivi per attività di debug ordinaria
 		reparto.mostraInfo();
 		stanza.mostraInfo();
 		letto.mostraInfo();
 
-		// Creazione paziente
+		// Registrazione e verifica dei dati anagrafici del paziente
 		Paziente paziente = new Paziente("RSSMRA80A01F839X", "Mario", "Bianchi");
 		paziente.mostraInfo();
 
-		// Creazione ricovero
+		// Apertura di una nuova pratica di ricovero associata a un posto letto specifico
 		Ricovero ricovero = new Ricovero(
 				1,
 				paziente, letto,
@@ -47,7 +47,7 @@ public class TestModel {
 		ricovero.checkSovrapposizione();
 		ricovero.inCorso();
 
-		// Creazione turno
+		// Definizione della pianificazione oraria del turno di guardia medica
 		Turno turno = new Turno(
 				1,
 				LocalTime.of(8, 0), LocalTime.of(14, 0),
@@ -56,7 +56,7 @@ public class TestModel {
 		turno.mostraInfo();
 		turno.copreFascia(LocalTime.of(10, 0));
 
-		// Creazione prestazione
+		// Registrazione di una prestazione medica vincolata al ricovero attivo del paziente
 		Prestazione prestazione = new Prestazione(
 				"Visita",
 				LocalTime.of(10, 0), LocalTime.of(11, 0),
@@ -65,11 +65,11 @@ public class TestModel {
 		prestazione.mostraInfo();
 		prestazione.modificaEsito("Paziente in buone condizioni");
 
-		// Agenda medico
+		// Interrogazione dei moduli di pianificazione delle agende del personale medico
 		medico.agendaGiornaliera();
 		medico.agendaSettimanale();
 
-		// Assenza medico
+		// Inserimento del periodo di indisponibilità medica e contestuale individuazione dei turni scoperti
 		AssenzaMedico assenza = new AssenzaMedico(
 				medico,
 				LocalDate.of(2024, 1, 12),
@@ -78,12 +78,12 @@ public class TestModel {
 		assenza.mostraInfo();
 		assenza.getTurniScoperti();
 
-		// Funzioni admin
-		admin.gestisciPazienti();
-		admin.gestisciRicoveri();
-		admin.elencoSostituzioni();
+		// Esecuzione dei controlli di idoneità e delle operazioni amministrative di backend
+		admin.gestisciPazienti(paziente);
+		admin.gestisciRicoveri(ricovero);
+		admin.elencoSostituzioni(assenza);
 
-		// Ricerca letti liberi
+		// Verifica e report finale della disponibilità dei posti letto all'interno del reparto
 		reparto.cercaLettiLiberi();
 	}
 }
