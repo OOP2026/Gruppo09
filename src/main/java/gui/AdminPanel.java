@@ -13,21 +13,16 @@ public class AdminPanel {
     private JButton btnElencoSostituzioni;
     private JButton btnLogout;
 
-    private JTextField txtCodiceFiscale;
-    private JTextField txtNome;
-    private JTextField txtCognome;
-
     private Controller controller;
-    private JFrame frame;            // Finestra corrente dell'area amministratore
-    private JFrame frameChiamante;   // Finestra di login precedente per consentire il ritorno al logout
+    private JFrame frame;            // Finestra corrente della dashboard admin
+    private JFrame frameChiamante;   // Finestra del login per consentire il ritorno
 
-    // Costruttore principale per l'inizializzazione dei componenti e dei listener
     public AdminPanel(Controller controller, JFrame frame, JFrame frameChiamante) {
         this.controller = controller;
         this.frame = frame;
         this.frameChiamante = frameChiamante;
 
-        // Apertura della schermata per la gestione dell'anagrafica pazienti
+        // Visualizzazione della schermata gestione pazienti
         btnGestisciPazienti.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -37,7 +32,7 @@ public class AdminPanel {
             }
         });
 
-        // Apertura della schermata per la registrazione e controllo dei ricoveri
+        // Visualizzazione della schermata gestione ricoveri
         btnGestisciRicoveri.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -47,7 +42,7 @@ public class AdminPanel {
             }
         });
 
-        // Apertura della schermata per la ricerca dei medici sostituti disponibili
+        // Visualizzazione della schermata sostituzioni medici
         btnElencoSostituzioni.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -57,18 +52,19 @@ public class AdminPanel {
             }
         });
 
-        // Gestione del logout con riattivazione del frame di login e distruzione del frame corrente
+        // Gestione del logout: pulizia sessione, riapertura login e distruzione frame attuale
         btnLogout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.logout();
                 frameChiamante.setVisible(true);
                 frame.setVisible(false);
-                frame.dispose();
+                frame.dispose(); // Libera la memoria allocata per questa finestra
             }
         });
     }
 
+    // Ritorna il pannello radice richiesto dal gestore delle finestre
     public JPanel getMainPanel() {
         return mainPanel;
     }

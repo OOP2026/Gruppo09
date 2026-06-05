@@ -18,38 +18,40 @@ public class PazientePanel {
     private JFrame frameChiamante;
     private Controller controller;
 
-    // Il costruttore riceve il controller e il riferimento alla finestra precedente per poter tornare indietro
     public PazientePanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
 
-        // Configurazione autonoma del JFrame associato a questa form
+        // Configurazione della finestra per la gestione del paziente
         frame = new JFrame("Gestione Anagrafica Paziente");
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setLocationRelativeTo(frameChiamante); // Centra la finestra rispetto alla precedente
+        frame.setLocationRelativeTo(frameChiamante);
 
-        // Azione del tasto Salva (Esegue l'UPSERT sul DB e torna indietro)
+        // Gestione del click sul pulsante Salva
         btnSalva.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Recupero dei testi inseriti dall'utente
                 String cf = txtCodiceFiscale.getText().trim();
                 String nome = txtNome.getText().trim();
                 String cognome = txtCognome.getText().trim();
 
+                // Validazione locale per verificare che nessun campo sia vuoto
                 if (cf.isEmpty() || nome.isEmpty() || cognome.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "Compila tutti i campi prima di salvare!", "Errore", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
+                // Creazione del modello ed invio dei dati al controller
                 Paziente paziente = new Paziente(cf, nome, cognome);
                 boolean esito = controller.gestisciPazienti(paziente);
 
                 if (esito) {
                     JOptionPane.showMessageDialog(frame, "Dati del paziente salvati con successo!", "Successo", JOptionPane.INFORMATION_MESSAGE);
 
-                    // Chiude la finestra corrente e ripristina la schermata amministratore
+                    // Ritorno alla dashboard amministratore e chiusura della finestra attuale
                     frame.setVisible(false);
                     frameChiamante.setVisible(true);
                     frame.dispose();
@@ -59,13 +61,14 @@ public class PazientePanel {
             }
         });
 
-        // Azione del tasto Annulla (Torna indietro senza salvare nulla)
+        // Gestione del click sul pulsante Annulla
         btnAnnulla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Ritorno alla schermata precedente senza salvare modifiche
                 frame.setVisible(false);
                 frameChiamante.setVisible(true);
-                frame.dispose(); // Distrugge la finestra per liberare memoria RAM
+                frame.dispose();
             }
         });
     }

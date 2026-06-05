@@ -5,7 +5,7 @@ import database_connection.ConnessioneDatabase;
 import model.Utente;
 import model.Admin;
 import model.Medico;
-
+import model.Reparto;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,39 +15,39 @@ public class UtentePostgresDAO implements UtenteDAO {
 
     private Connection conn;
 
-    // Costruttore: recupera la connessione centralizzata
     public UtentePostgresDAO() {
+        // Recupera la connessione centralizzata dal Singleton
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
     @Override
     public String verificaLogin(String username, String password) {
-        // Query per verificare se esistono le credenziali inserite
-        String query = "SELECT tipoUtente FROM UTENTE WHERE username = ? AND password = ?";
+        // Controlla la validità delle credenziali inserite nel pannello di login
+        String query = "SELECT tipoutente FROM utente WHERE username = ? AND password = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            // Sostituisce i punti interrogativi con i valori passati come parametro
             pstmt.setString(1, username);
             pstmt.setString(2, password);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                // Se trova una corrispondenza, restituisce il tipo di utente
                 if (rs.next()) {
-                    return rs.getString("tipoUtente").toLowerCase();
+                    return rs.getString("tipoutente").toLowerCase();
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        // Restituisce errore se le credenziali non sono corrette
         return "errore";
     }
 
     @Override
     public Utente getUtenteByUsername(String username) {
-        // Query per ottenere i dati dell'utente dal suo username
-        String query = "SELECT username, password, tipoUtente FROM UTENTE WHERE username = ?";
+        // Query con JOIN per caricare l'anagrafica completa e il reparto in caso di utente medico
+        String query = "SELECT u.username, u.password, u.tipoutente, m.matricola, m.idreparto, r.nome AS nome_reparto " +
+                "FROM utente u " +
+                "LEFT JOIN medico m ON u.username = m.username " +
+                "LEFT JOIN reparto r ON m.idreparto = r.idreparto " +
+                "WHERE u.username = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, username);
@@ -55,13 +55,17 @@ public class UtentePostgresDAO implements UtenteDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     String password = rs.getString("password");
-                    String tipo = rs.getString("tipoUtente");
+                    String tipo = rs.getString("tipoutente");
 
-                    // Crea l'oggetto specifico in base al tipo memorizzato nel database
+                    // Istanziazione polimorfica dell'utente specifico con i dati reali del DB
                     if (tipo.equalsIgnoreCase("ADMIN")) {
                         return new Admin(username, password);
                     } else if (tipo.equalsIgnoreCase("MEDICO")) {
-                        return new Medico(username, password, null, null);
+                        Reparto reparto = null;
+                        if (rs.getObject("idreparto") != null) {
+                            reparto = new Reparto(rs.getInt("idreparto"), rs.getString("nome_reparto"));
+                        }
+                        return new Medico(username, password, rs.getString("matricola"), reparto);
                     }
                 }
             }

@@ -16,14 +16,15 @@ public class PazientePostgresDAO implements PazienteDAO {
     private Connection conn;
 
     public PazientePostgresDAO() {
+        // Recupera la connessione centralizzata
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
     @Override
     public boolean inserisciPaziente(Paziente paziente) {
-        // Query unica: esegue l'INSERT o l'UPDATE in caso di conflitto sulla chiave primaria
-        String query = "INSERT INTO PAZIENTE (codiceFiscale, nome, cognome) VALUES (?, ?, ?) " +
-                "ON CONFLICT (codiceFiscale) " +
+        // Clausola ON CONFLICT per gestire inserimento e modifica in un'unica operazione
+        String query = "INSERT INTO paziente (codicefiscale, nome, cognome) VALUES (?, ?, ?) " +
+                "ON CONFLICT (codicefiscale) " +
                 "DO UPDATE SET nome = EXCLUDED.nome, cognome = EXCLUDED.cognome";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -42,13 +43,14 @@ public class PazientePostgresDAO implements PazienteDAO {
     @Override
     public List<Paziente> getAllPazienti() {
         List<Paziente> lista = new ArrayList<>();
-        String query = "SELECT codiceFiscale, nome, cognome FROM PAZIENTE";
+        String query = "SELECT codicefiscale, nome, cognome FROM paziente";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                String cf = rs.getString("codiceFiscale");
+                // Estratto utilizzando i nomi colonna minuscoli coerenti con PostgreSQL
+                String cf = rs.getString("codicefiscale");
                 String nome = rs.getString("nome");
                 String cognome = rs.getString("cognome");
 

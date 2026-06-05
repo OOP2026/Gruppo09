@@ -6,6 +6,7 @@ import model.Medico;
 import model.Prestazione;
 import model.Ricovero;
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
     private Connection conn;
 
     public PrestazionePostgresDAO() {
+        // Recupera la connessione centralizzata dal Singleton
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
@@ -21,12 +23,12 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
     public List<Prestazione> getAgendaGiornaliera(String matricolaMedico) {
         List<Prestazione> agenda = new ArrayList<>();
 
-        // Query con JOIN per verificare che la data del ricovero sia OGGI
-        String query = "SELECT p.idprestazione, p.tipo, p.orainizio, p.orafine, p.esito, p.idricovero " +
+        // Query corretta per filtrare esplicitamente sulla matricola del medico
+        String query = "SELECT p.idprestazione, p.tipo, p.orainizio, p.orafine, p.esito, p.idricovero, m.username " +
                 "FROM prestazione p " +
                 "JOIN ricovero r ON p.idricovero = r.idricovero " +
                 "JOIN medico m ON p.codmedico = m.matricola " +
-                "WHERE m.username = ? AND r.datainizio = CURRENT_DATE " +
+                "WHERE m.matricola = ? AND r.datainizio = CURRENT_DATE " +
                 "ORDER BY p.orainizio ASC";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
@@ -37,15 +39,13 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
                     LocalTime oraInizio = rs.getTime("orainizio").toLocalTime();
                     LocalTime oraFine = rs.getTime("orafine").toLocalTime();
 
-                    // Istanziamo gli oggetti composti richiesti dal costruttore di Prestazione
-                    Medico medico = new Medico("", "", matricolaMedico, null);
+                    // Ricostruisce l'associazione con il medico e il ricovero
+                    Medico medico = new Medico(rs.getString("username"), "", matricolaMedico, null);
                     Ricovero ricovero = new Ricovero(rs.getInt("idricovero"), null, null, null, null, null, null);
 
-                    // Creiamo l'oggetto prestazione usando il tuo costruttore
                     String tipo = rs.getString("tipo");
                     Prestazione p = new Prestazione(tipo, oraInizio, oraFine, medico, ricovero);
 
-                    // Impostiamo l'ID e l'esito recuperati dal DB
                     p.setIdPrestazione(rs.getInt("idprestazione"));
                     p.setEsito(rs.getString("esito"));
 
@@ -62,8 +62,8 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
     public List<Prestazione> getAgendaSettimanale(String usernameMedico) {
         List<Prestazione> agenda = new ArrayList<>();
 
-        // Query che estrae i prossimi 7 giorni (oggi compreso) ordinati per data e ora
-        String query = "SELECT p.idprestazione, p.tipo, p.orainizio, p.orafine, p.esito, p.idricovero, r.datainizio " +
+        // Estrae le prestazioni comprese nell'intervallo dei prossimi 7 giorni
+        String query = "SELECT p.idprestazione, p.tipo, p.orainizio, p.orafine, p.esito, p.idricovero, r.datainizio, m.matricola " +
                 "FROM prestazione p " +
                 "JOIN ricovero r ON p.idricovero = r.idricovero " +
                 "JOIN medico m ON p.codmedico = m.matricola " +
@@ -78,11 +78,9 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
                     LocalTime oraInizio = rs.getTime("orainizio").toLocalTime();
                     LocalTime oraFine = rs.getTime("orafine").toLocalTime();
 
-                    Medico medico = new Medico(usernameMedico, "", "", null);
+                    Medico medico = new Medico(usernameMedico, "", rs.getString("matricola"), null);
                     Ricovero ricovero = new Ricovero(rs.getInt("idricovero"), null, null, null, null, null, null);
 
-                    // Preleviamo la data dal DB e la passiamo al ricovero
-                    // Controlla il nome del setter nella tua classe Ricovero (es. setDataInizio o simile)
                     if (rs.getDate("datainizio") != null) {
                         ricovero.setDataInizio(rs.getDate("datainizio").toLocalDate());
                     }
@@ -103,50 +101,39 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
 
     @Override
     public String registraPrestazione(String usernameMedico, int idRicovero, String tipo, LocalTime oraInizio, LocalTime oraFine, String esito) {
-        // 1. Recuperiamo la matricola del medico dallo username
         String matricolaMedico = null;
+
+        // 1. Recupera la matricola del medico partendo dallo username di sessione
         String queryMedico = "SELECT matricola FROM medico WHERE username = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(queryMedico)) {
             pstmt.setString(1, usernameMedico);
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) matricolaMedico = rs.getString("matricola");
+                if (rs.next()) {
+                    matricolaMedico = rs.getString("matricola");
+                }
             }
         } catch (SQLException e) {
             return "Errore nel recupero dei dati del medico: " + e.getMessage();
         }
         if (matricolaMedico == null) return "Medico non trovato.";
 
-        // 2. RECUPERO DATA DEL RICOVERO E TRADUZIONE IN GIORNO DELLA SETTIMANA
+        // 2. Determina il giorno della settimana associato alla data del ricovero
         String giornoSettimanaInItaliano = null;
         String queryDataRicovero = "SELECT datainizio FROM ricovero WHERE idricovero = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(queryDataRicovero)) {
             pstmt.setInt(1, idRicovero);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    java.time.LocalDate dataRic = rs.getDate("datainizio").toLocalDate();
+                    LocalDate dataRic = rs.getDate("datainizio").toLocalDate();
 
                     switch (dataRic.getDayOfWeek()) {
-                        case MONDAY:
-                            giornoSettimanaInItaliano = "Lunedì";
-                            break;
-                        case TUESDAY:
-                            giornoSettimanaInItaliano = "Martedì";
-                            break;
-                        case WEDNESDAY:
-                            giornoSettimanaInItaliano = "Mercoledì";
-                            break;
-                        case THURSDAY:
-                            giornoSettimanaInItaliano = "Giovedì";
-                            break;
-                        case FRIDAY:
-                            giornoSettimanaInItaliano = "Venerdì";
-                            break;
-                        case SATURDAY:
-                            giornoSettimanaInItaliano = "Sabato";
-                            break;
-                        case SUNDAY:
-                            giornoSettimanaInItaliano = "Domenica";
-                            break;
+                        case MONDAY:    giornoSettimanaInItaliano = "Lunedì"; break;
+                        case TUESDAY:   giornoSettimanaInItaliano = "Martedì"; break;
+                        case WEDNESDAY: giornoSettimanaInItaliano = "Mercoledì"; break;
+                        case THURSDAY:  giornoSettimanaInItaliano = "Giovedì"; break;
+                        case FRIDAY:    giornoSettimanaInItaliano = "Venerdì"; break;
+                        case SATURDAY:  giornoSettimanaInItaliano = "Sabato"; break;
+                        case SUNDAY:    giornoSettimanaInItaliano = "Domenica"; break;
                     }
                 } else {
                     return "Errore: ID Ricovero non esistente nel database.";
@@ -155,7 +142,8 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
         } catch (SQLException e) {
             return "Errore nel recupero della data del ricovero: " + e.getMessage();
         }
-        // 3. CONTROLLO TURNO LAVORATIVO (Ora tiene conto anche del giorno esatto!)
+
+        // 3. Verifica che l'orario della prestazione rientri interamente nel turno del medico
         String queryTurno = "SELECT orainizio, orafine FROM turno WHERE codmedico = ? AND LOWER(giornosettimana) = LOWER(?)";
         try (PreparedStatement pstmt = conn.prepareStatement(queryTurno)) {
             pstmt.setString(1, matricolaMedico);
@@ -176,7 +164,7 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
             return "Errore nel controllo del turno: " + e.getMessage();
         }
 
-        // 4. CONTROLLO SOVRAPPOSIZIONE TEMPORALE
+        // 4. Controllo categorico sulle sovrapposizioni temporali per lo stesso medico
         String querySovrapposizione =
                 "SELECT COUNT(*) FROM prestazione p " +
                         "JOIN ricovero r ON p.idricovero = r.idricovero " +
@@ -199,7 +187,7 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
             return "Errore nel controllo delle sovrapposizioni: " + e.getMessage();
         }
 
-        // 5. INSERIMENTO FINALE
+        // 5. Inserimento finale della prestazione validata
         String queryInsert = "INSERT INTO prestazione (tipo, orainizio, orafine, esito, idricovero, codmedico) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(queryInsert)) {
             pstmt.setString(1, tipo);

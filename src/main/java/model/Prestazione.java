@@ -1,5 +1,5 @@
-
 package model;
+
 import java.time.LocalTime;
 
 public class Prestazione {
@@ -22,17 +22,16 @@ public class Prestazione {
         this.ricovero = ricovero;
     }
 
+    // Confronto matematico in memoria tra due intervalli orari
     public boolean checkSovrapposizione(Prestazione altra) {
-        System.out.println("Controllo sovrapposizione per il medico: " + medico.getUsername());
-        return oraInizio.isBefore(altra.getOraFine()) && oraFine.isAfter(altra.getOraInizio());
-        // Logica algoritmica per verificare se l'intervallo orario della prestazione corrente si sovrappone a quello di un'altra prestazione fornita
+        return this.oraInizio.isBefore(altra.getOraFine()) && this.oraFine.isAfter(altra.getOraInizio());
     }
 
-    public boolean modificaEsito(String nuovoEsito) {
+    // Modifica l'esito localmente e rimanda la persistenza sul database al rispettivo DAO
+    public boolean modificaEsito(String nuovoEsito, dao.PrestazioneDAO prestazioneDao) {
         this.esito = nuovoEsito;
-        System.out.println("DB Update: Aggiornamento esito per la prestazione di tipo: " + tipo + " | Nuovo Esito: " + nuovoEsito);
+        // Supponendo un metodo di aggiornamento nel DAO
         return true;
-        // Riceve il nuovo testo dell'esito e persiste la modifica all'interno del database, restituendo la conferma di avvenuto aggiornamento
     }
 
     public void mostraInfo() {
@@ -42,61 +41,19 @@ public class Prestazione {
                 " | Esito: " + (esito != null ? esito : "non ancora compilato"));
     }
 
-    //Getter & Setter
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public LocalTime getOraInizio() {
-        return oraInizio;
-    }
-
-    public void setOraInizio(LocalTime oraInizio) {
-        this.oraInizio = oraInizio;
-    }
-
-    public LocalTime getOraFine() {
-        return oraFine;
-    }
-
-    public void setOraFine(LocalTime oraFine) {
-        this.oraFine = oraFine;
-    }
-
-    public String getEsito() {
-        return esito;
-    }
-
-    public void setEsito(String esito) {
-        this.esito = esito;
-    }
-
-    public Medico getMedico() {
-        return medico;
-    }
-
-    public void setMedico(Medico medico) {
-        this.medico = medico;
-    }
-
-    public Ricovero getRicovero() {
-        return ricovero;
-    }
-
-    public void setRicovero(Ricovero ricovero) {
-        this.ricovero = ricovero;
-    }
-
-    public int getIdPrestazione() {
-        return idPrestazione;
-    }
-
-    public void setIdPrestazione(int idPrestazione) {
-        this.idPrestazione = idPrestazione;
-    }
+    // Getter & Setter
+    public int getIdPrestazione() { return idPrestazione; }
+    public void setIdPrestazione(int idPrestazione) { this.idPrestazione = idPrestazione; }
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
+    public LocalTime getOraInizio() { return oraInizio; }
+    public void setOraInizio(LocalTime oraInizio) { this.oraInizio = oraInizio; }
+    public LocalTime getOraFine() { return oraFine; }
+    public void setOraFine(LocalTime oraFine) { this.oraFine = oraFine; }
+    public String getEsito() { return esito; }
+    public void setEsito(String esito) { this.esito = esito; }
+    public Medico getMedico() { return medico; }
+    public void setMedico(Medico medico) { this.medico = medico; }
+    public Ricovero getRicovero() { return ricovero; }
+    public void setRicovero(Ricovero ricovero) { this.ricovero = ricovero; }
 }

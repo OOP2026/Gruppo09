@@ -6,12 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 public class RegistraPrestazionePanel {
-    // Componenti legati al file .form
     private JPanel mainPanel;
-    private JComboBox cmbRicovero;
-    private JTextField txtIdRicovero;
+    private JComboBox<String> cmbRicovero;
     private JTextField txtTipo;
     private JTextField txtOraInizio;
     private JTextField txtOraFine;
@@ -22,22 +21,24 @@ public class RegistraPrestazionePanel {
     private JFrame frame;
     private JFrame frameChiamante;
     private Controller controller;
-    private String usernameMedico;
 
-    public RegistraPrestazionePanel(Controller controller, JFrame frameChiamante, String usernameMedico) {
+    // Il costruttore accetta solo i riferimenti per il controllo visivo delle viste
+    public RegistraPrestazionePanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
-        this.usernameMedico = usernameMedico;
 
+        // Configurazione della finestra di registrazione
         this.frame = new JFrame("Registra Nuova Prestazione");
         this.frame.setContentPane(mainPanel);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        // Popolamento iniziale della tendina dei ricoveri attivi
         popolaMenuRicoveri();
 
         this.frame.pack();
         this.frame.setLocationRelativeTo(frameChiamante);
 
+        // Gestione del click sul pulsante Salva
         btnSalva.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -45,10 +46,12 @@ public class RegistraPrestazionePanel {
             }
         });
 
+        // Gestione del click sul pulsante Annulla
         btnAnnulla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frameChiamante.setVisible(true);
+                frame.setVisible(false);
                 frame.dispose();
             }
         });
@@ -62,8 +65,7 @@ public class RegistraPrestazionePanel {
                 return;
             }
 
-            // 1. Estraiamo l'ID prima del carattere "|"
-            // Usiamo il limit a 2 per evitare problemi con spazi extra
+            // Isola l'ID numerico del ricovero tagliando la stringa della ComboBox
             String[] parti = itemSelezionato.split("\\|");
             int idRicovero = Integer.parseInt(parti[0].trim());
 
@@ -75,7 +77,7 @@ public class RegistraPrestazionePanel {
                 return;
             }
 
-            // 2. Parsing degli orari
+            // Conversione testuale delle fasce orarie inserite
             LocalTime oraInizio = LocalTime.parse(txtOraInizio.getText().trim());
             LocalTime oraFine = LocalTime.parse(txtOraFine.getText().trim());
 
@@ -84,12 +86,13 @@ public class RegistraPrestazionePanel {
                 return;
             }
 
-            // 3. Chiamata al controller
-            String risultato = controller.registraNuovaPrestazione(usernameMedico, idRicovero, tipo, oraInizio, oraFine, esito);
+            // Delegazione dell'inserimento al controller senza passaggio di dati di sessione dalla GUI
+            String risultato = controller.registraPrestazione(idRicovero, tipo, oraInizio, oraFine, esito);
 
             if (risultato.equals("OK")) {
                 JOptionPane.showMessageDialog(frame, "Prestazione registrata con successo!", "Successo", JOptionPane.INFORMATION_MESSAGE);
                 frameChiamante.setVisible(true);
+                frame.setVisible(false);
                 frame.dispose();
             } else {
                 JOptionPane.showMessageDialog(frame, risultato, "Vincolo Violato", JOptionPane.WARNING_MESSAGE);
@@ -98,26 +101,21 @@ public class RegistraPrestazionePanel {
         } catch (DateTimeParseException ex) {
             JOptionPane.showMessageDialog(frame, "Formato orario non valido. Usa il formato HH:mm (es. 08:30).", "Errore Input", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            // 👇 RETE DI SICUREZZA: Se c'è un errore qualsiasi (Null, conversioni, ecc.) esce questo pop-up!
-            JOptionPane.showMessageDialog(frame, "Errore imprevisto durante il salvataggio:\n" + ex.toString(), "Errore di Sistema", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace(); // Stampa la traccia completa nella console Run
+            JOptionPane.showMessageDialog(frame, "Errore imprevisto durante il salvataggio:\n" + ex.getMessage(), "Errore di Sistema", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 
     private void popolaMenuRicoveri() {
-        // Recuperiamo la lista di stringhe dal controller
-        java.util.List<String> ricoveri = controller.recuperaRicoveriPerComboBox();
-
-        // Stampiamo un debug in console per verificare se arrivano dati dal DB
-        System.out.println("DEBUG: Ricoveri trovati nel DB: " + ricoveri.size());
+        // Recupera i soli ricoveri attivi formattati in formato stringa
+        List<String> ricoveri = controller.recuperaRicoveriPerComboBox();
 
         if (ricoveri.isEmpty()) {
             cmbRicovero.addItem("Nessun ricovero disponibile nel sistema");
-            btnSalva.setEnabled(false); // Disabilita il tasto salva se non ci sono ricoveri
+            btnSalva.setEnabled(false);
         } else {
             for (String r : ricoveri) {
-                System.out.println("DEBUG: Aggiungo a ComboBox -> " + r);
-                cmbRicovero.addItem(r); // Aggiunge l'elemento al menu a tendina
+                cmbRicovero.addItem(r);
             }
         }
     }

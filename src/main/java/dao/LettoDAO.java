@@ -4,6 +4,6 @@ import model.Letto;
 import java.util.List;
 
 public interface LettoDAO {
-    // Recupera tutti i letti censiti nell'ospedale per i menu a tendina
+    // Recupera l'elenco di tutti i letti della struttura
     List<Letto> getAllLetti();
 }

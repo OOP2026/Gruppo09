@@ -4,10 +4,9 @@ import model.Paziente;
 import java.util.List;
 
 public interface PazienteDAO {
-
-    // Gestisce sia il salvataggio che l'aggiornamento dell'anagrafica
+    // Inserisce o aggiorna l'anagrafica di un paziente
     boolean inserisciPaziente(Paziente paziente);
 
-    // Recupera la lista di tutti i pazienti
+    // Recupera l'elenco di tutti i pazienti registrati
     List<Paziente> getAllPazienti();
 }

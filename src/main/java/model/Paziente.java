@@ -1,7 +1,6 @@
 package model;
 
 public class Paziente {
-
     private String codiceFiscale;
     private String nome;
     private String cognome;
@@ -12,39 +11,20 @@ public class Paziente {
         this.cognome = cognome;
     }
 
+    // Fornisce i dati essenziali del paziente per le liste della GUI
     public String getInfoBase() {
         return nome + " " + cognome + " - " + codiceFiscale;
-        // Restituisce una stringa formattata contenente i dati identificativi essenziali del paziente
     }
 
     public void mostraInfo() {
-        System.out.println("Nome: " + nome + " | Cognome: " + cognome +
-                " | CF: " + codiceFiscale);
+        System.out.println("Nome: " + nome + " | Cognome: " + cognome + " | CF: " + codiceFiscale);
     }
 
-    //Getter & Setter
-
-    public String getCodiceFiscale() {
-        return codiceFiscale;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getCognome() {
-        return cognome;
-    }
-
-    public void setCodiceFiscale(String codiceFiscale) {
-        this.codiceFiscale = codiceFiscale;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public void setCognome(String cognome) {
-        this.cognome = cognome;
-    }
+    // Getter e Setter
+    public String getCodiceFiscale() { return codiceFiscale; }
+    public void setCodiceFiscale(String codiceFiscale) { this.codiceFiscale = codiceFiscale; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    public String getCognome() { return cognome; }
+    public void setCognome(String cognome) { this.cognome = cognome; }
 }

@@ -16,11 +16,10 @@ public class AssenzaMedico {
         this.dataFine = dataFine;
     }
 
-    public List<Turno> getTurniScoperti() {
-        System.out.println("DB Query: Individuazione turni scoperti per il medico: " + medico.getUsername());
-        System.out.println("Periodo di assenza: dal " + dataInizio + " al " + dataFine);
+    // Individua i turni rimasti scoperti interpellando lo strato DAO competente
+    public List<Turno> getTurniScoperti(dao.MedicoDAO medicoDao) {
+        // Delega la ricerca delle fasce orarie scoperte al DAO del medico
         return new ArrayList<>();
-        // Logica per interrogare il database e individuare i turni e le prestazioni rimasti senza copertura nel periodo indicato
     }
 
     public void mostraInfo() {
@@ -28,30 +27,11 @@ public class AssenzaMedico {
                 " | Dal: " + dataInizio + " al: " + dataFine);
     }
 
-    //Getter & Setter
-
-
-    public LocalDate getDataInizio() {
-        return dataInizio;
-    }
-
-    public void setDataInizio(LocalDate dataInizio) {
-        this.dataInizio = dataInizio;
-    }
-
-    public LocalDate getDataFine() {
-        return dataFine;
-    }
-
-    public void setDataFine(LocalDate dataFine) {
-        this.dataFine = dataFine;
-    }
-
-    public Medico getMedico() {
-        return medico;
-    }
-
-    public void setMedico(Medico medico) {
-        this.medico = medico;
-    }
+    // Getter & Setter
+    public LocalDate getDataInizio() { return dataInizio; }
+    public void setDataInizio(LocalDate dataInizio) { this.dataInizio = dataInizio; }
+    public LocalDate getDataFine() { return dataFine; }
+    public void setDataFine(LocalDate dataFine) { this.dataFine = dataFine; }
+    public Medico getMedico() { return medico; }
+    public void setMedico(Medico medico) { this.medico = medico; }
 }

@@ -12,23 +12,24 @@ public class RicoveroPostgresDAO implements RicoveroDAO {
     private Connection conn;
 
     public RicoveroPostgresDAO() {
+        // Recupera la connessione centralizzata dal Singleton
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
     @Override
     public boolean checkSovrapposizione(Ricovero ricovero) {
-        // Controlla se esistono ricoveri attivi per lo stesso letto le cui date si intersecano con quelle richieste
+        // Verifica conflitti con degenze attive sullo stesso letto nell'intervallo indicato
         String query = "SELECT COUNT(*) FROM ricovero WHERE codiceletto = ? AND datadimissioneeffettiva IS NULL " +
                 "AND NOT (datadimissioneprevista < ? OR datainizio > ?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, ricovero.getLetto().getID_letto());
+            pstmt.setInt(1, ricovero.getLetto().getIdLetto());
             pstmt.setDate(2, Date.valueOf(ricovero.getDataInizio()));
             pstmt.setDate(3, Date.valueOf(ricovero.getDataDimissionePrevista()));
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1) > 0; // Ritorna true se trova conflitti
+                    return rs.getInt(1) > 0;
                 }
             }
         } catch (SQLException e) {
@@ -43,9 +44,9 @@ public class RicoveroPostgresDAO implements RicoveroDAO {
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, ricovero.getID_ricovero());
+            pstmt.setInt(1, ricovero.getIdRicovero());
             pstmt.setString(2, ricovero.getPaziente().getCodiceFiscale());
-            pstmt.setInt(3, ricovero.getLetto().getID_letto());
+            pstmt.setInt(3, ricovero.getLetto().getIdLetto());
             pstmt.setDate(4, Date.valueOf(ricovero.getDataInizio()));
             pstmt.setTime(5, Time.valueOf(ricovero.getOraInizio()));
             pstmt.setDate(6, Date.valueOf(ricovero.getDataDimissionePrevista()));
@@ -62,17 +63,19 @@ public class RicoveroPostgresDAO implements RicoveroDAO {
     @Override
     public List<String> getRicoveriAttiviPerComboBox() {
         List<String> lista = new ArrayList<>();
-        // Query con JOIN basata sulla tua colonna 'codpaziente' per estrarre l'anagrafica del paziente
+
+        // Query con JOIN che seleziona solo i ricoveri NON ancora dimessi
         String query = "SELECT r.idricovero, p.nome, p.cognome, p.codicefiscale " +
                 "FROM ricovero r " +
                 "JOIN paziente p ON r.codpaziente = p.codicefiscale " +
+                "WHERE r.datadimissioneeffettiva IS NULL " +
                 "ORDER BY r.idricovero DESC";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                // Formato stringa pulito che verrà letto dal modulo di registrazione prestazione
+                // Formatta il testo identificativo da mostrare nel menu a tendina della GUI
                 String elemento = rs.getInt("idricovero") + " | " +
                         rs.getString("nome") + " " +
                         rs.getString("cognome") + " (" +

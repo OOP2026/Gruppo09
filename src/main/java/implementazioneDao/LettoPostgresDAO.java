@@ -15,6 +15,7 @@ public class LettoPostgresDAO implements LettoDAO {
     private Connection conn;
 
     public LettoPostgresDAO() {
+        // Recupera l'istanza unica della connessione al database
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
@@ -25,7 +26,9 @@ public class LettoPostgresDAO implements LettoDAO {
 
         try (PreparedStatement pstmt = conn.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
+
             while (rs.next()) {
+                // Istanzia l'oggetto Letto passando il codice ottenuto dal DB
                 lista.add(new Letto(rs.getInt("codiceletto")));
             }
         } catch (SQLException e) {

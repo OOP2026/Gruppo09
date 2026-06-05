@@ -1,14 +1,13 @@
 package model;
 
+import dao.PrestazioneDAO;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Medico extends Utente {
-
     private String matricola;
-    private Reparto reparto; // Riferimento al reparto a cui afferisce il medico
+    private Reparto reparto;
 
     public Medico(String username, String password, String matricola, Reparto reparto) {
         super(username, password);
@@ -16,35 +15,24 @@ public class Medico extends Utente {
         this.reparto = reparto;
     }
 
-    public List<Prestazione> agendaGiornaliera() {
-        System.out.println("DB Query: Recupero prestazioni odierne per la matricola: " + matricola);
-        return new ArrayList<>();
-        // logica per restituire le prestazioni programmate per oggi
+    // Interroga il DB tramite il passaggio dell'interfaccia DAO
+    public List<Prestazione> agendaGiornaliera(PrestazioneDAO prestazioneDao) {
+        return prestazioneDao.getAgendaGiornaliera(this.matricola);
     }
 
-
-    public List<Prestazione> agendaSettimanale() {
-        System.out.println("DB Query: Recupero prestazioni settimanali per la matricola: " + matricola);
-        return new ArrayList<>();
-
-        // logica per restituire le prestazioni della settimana in corso
+    // Interroga il DB tramite il passaggio dell'interfaccia DAO
+    public List<Prestazione> agendaSettimanale(PrestazioneDAO prestazioneDao) {
+        return prestazioneDao.getAgendaSettimanale(getUsername());
     }
 
-    public boolean registraPrestazione(Prestazione nuovaPrestazione) {
-        System.out.println("DB Inserimento: Verifica vincoli e registrazione prestazione in corso...");
-        return true;
-
-        // Riceve la prestazione da convalidare e salvare nel DB
-        // La logica SQL verificherà la copertura del turno e l'assenza di sovrapposizioni
+    // Delega la registrazione della prestazione al DAO competente
+    public String registraPrestazione(int idRicovero, String tipo, LocalTime oraInizio, LocalTime oraFine, String esito, PrestazioneDAO prestazioneDao) {
+        return prestazioneDao.registraPrestazione(getUsername(), idRicovero, tipo, oraInizio, oraFine, esito);
     }
 
-
-
-    public boolean disponibilita(LocalDate data, LocalTime inizio, LocalTime fine) {
-        System.out.println("DB Query: Verifica impegni per il medico " + getUsername() + " in data " + data);
-        return true;
-
-        // Verifica la reperibilità del medico in una specifica finestra temporale
+    // Verifica la disponibilità oraria del medico sfruttando il metodo DAO validato
+    public boolean disponibilita(LocalDate data, LocalTime inizio, LocalTime fine, dao.MedicoDAO medicoDao) {
+        return medicoDao.verificaDisponibilita(this.matricola, data, inizio, fine);
     }
 
     @Override
@@ -53,21 +41,9 @@ public class Medico extends Utente {
         System.out.println("Medico: " + getUsername() + " | Matricola: " + matricola + " | Reparto: " + nomeReparto);
     }
 
-    //Getter & Setter
-
-    public String getMatricola() {
-        return matricola;
-    }
-
-    public Reparto getReparto() {
-        return reparto;
-    }
-
-    public void setMatricola(String matricola) {
-        this.matricola = matricola;
-    }
-
-    public void setReparto(Reparto reparto) {
-        this.reparto = reparto;
-    }
+    // Getter e Setter
+    public String getMatricola() { return matricola; }
+    public void setMatricola(String matricola) { this.matricola = matricola; }
+    public Reparto getReparto() { return reparto; }
+    public void setReparto(Reparto reparto) { this.reparto = reparto; }
 }

@@ -17,33 +17,38 @@ public class AgendaSettimanalePanel {
     private JFrame frameChiamante;
     private Controller controller;
     private DefaultTableModel tableModel;
-    private String usernameMedico;
 
-    public AgendaSettimanalePanel(Controller controller, JFrame frameChiamante, String usernameMedico) {
+    // Il costruttore riceve solo i riferimenti per il controllo visivo delle finestre
+    public AgendaSettimanalePanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
-        this.usernameMedico = usernameMedico;
 
+        // Configurazione della finestra per la pianificazione dei 7 giorni
         this.frame = new JFrame("Pianificazione Settimanale");
         this.frame.setContentPane(mainPanel);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        // Inizializzazione colonne e caricamento elementi
         configuraTabella();
         caricaDati();
 
         this.frame.pack();
         this.frame.setLocationRelativeTo(frameChiamante);
 
+        // Gestione del click sul pulsante Chiudi
         btnChiudi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Riattiva il menu del medico e dealloca la finestra attuale
                 frameChiamante.setVisible(true);
+                frame.setVisible(false);
                 frame.dispose();
             }
         });
     }
 
     private void configuraTabella() {
+        // Rende la tabella non editabile digitando sopra le celle
         tableModel = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -62,15 +67,18 @@ public class AgendaSettimanalePanel {
 
     private void caricaDati() {
         tableModel.setRowCount(0);
-        List<Prestazione> lista = controller.recuperaAgendaSettimanale(usernameMedico);
+
+        // Interroga il controller sfruttando la sessione memorizzata nel Control
+        List<Prestazione> lista = controller.agendaSettimanale();
 
         if (lista.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Nessuna prestazione programmata per i prossimi 7 giorni.", "Agenda Settimanale", JOptionPane.INFORMATION_MESSAGE);
         } else {
             for (Prestazione p : lista) {
-                int idRicovero = (p.getRicovero() != null) ? p.getRicovero().getID_ricovero() : 0;
+                // Recupero ID ricovero aggiornato secondo lo standard camelCase
+                int idRicovero = (p.getRicovero() != null) ? p.getRicovero().getIdRicovero() : 0;
 
-                // Recuperiamo la data dal ricovero
+                // Estrazione della data di inizio della degenza associata
                 Object dataVisita = (p.getRicovero() != null) ? p.getRicovero().getDataInizio() : "N.D.";
 
                 tableModel.addRow(new Object[]{

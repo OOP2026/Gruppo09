@@ -27,20 +27,21 @@ public class SostituzioniPanel {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
 
+        // Inizializzazione e configurazione del frame indipendente
         this.frame = new JFrame("Ricerca Medici Sostituti");
         this.frame.setContentPane(mainPanel);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Configurazione iniziale della JTable della Form
+        // Configurazione delle colonne della JTable
         configuraTabella();
 
-        // Popola la ComboBox con i medici censiti nel DB
+        // Caricamento dei medici all'interno della ComboBox
         popolaMedici();
 
         this.frame.pack();
         this.frame.setLocationRelativeTo(frameChiamante);
 
-        // Azione del tasto Cerca Sostituti
+        // Gestione del click sul pulsante Cerca
         btnCerca.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -49,25 +50,27 @@ public class SostituzioniPanel {
                     String dataInizioRaw = txtDataInizio.getText().trim();
                     String dataFineRaw = txtDataFine.getText().trim();
 
+                    // Controllo formale sui campi vuoti della form
                     if (medicoSelezionato == null || dataInizioRaw.isEmpty() || dataFineRaw.isEmpty()) {
                         JOptionPane.showMessageDialog(frame, "Compila tutti i campi di ricerca!", "Attenzione", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
-                    // Estrae la matricola (assumendo che nella combo appaia come "MATRICOLA - USERNAME")
+                    // Separazione della stringa per estrarre la sola matricola del medico assente
                     String matricola = medicoSelezionato.split(" - ")[0];
                     LocalDate inizio = LocalDate.parse(dataInizioRaw);
                     LocalDate fine = LocalDate.parse(dataFineRaw);
 
+                    // Controllo di congruenza logica sulle date inserite
                     if (fine.isBefore(inizio)) {
                         JOptionPane.showMessageDialog(frame, "La data di fine non può essere precedente all'inizio!", "Errore", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    // Interroga il controller per trovare i sostituti idonei
+                    // Invocazione del metodo di business delegato al controller
                     List<Medico> sostituti = controller.calcolaSostituti(matricola, inizio, fine);
 
-                    // Pulisce la tabella e carica i nuovi record trovati
+                    // Svuotamento preventivo e popolamento della tabella con i risultati
                     tableModel.setRowCount(0);
                     if (sostituti.isEmpty()) {
                         JOptionPane.showMessageDialog(frame, "Nessun medico disponibile trovato per questo periodo.", "Esito Ricerca", JOptionPane.INFORMATION_MESSAGE);
@@ -84,16 +87,20 @@ public class SostituzioniPanel {
             }
         });
 
+        // Gestione del click sul pulsante Annulla
         btnAnnulla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // Ripristino visibilità della dashboard amministratore e deallocazione risorse
                 frameChiamante.setVisible(true);
+                frame.setVisible(false);
                 frame.dispose();
             }
         });
     }
 
     private void configuraTabella() {
+        // Definizione dello schema e dei titoli delle colonne della JTable
         tableModel = new DefaultTableModel();
         tableModel.addColumn("Matricola Medico");
         tableModel.addColumn("Username / Nome");
@@ -102,6 +109,7 @@ public class SostituzioniPanel {
     }
 
     private void popolaMedici() {
+        // Recupero dell'elenco completo dei medici per valorizzare la tendina iniziale
         List<Medico> medici = controller.recuperaTuttiMedici();
         if (medici != null) {
             for (Medico m : medici) {

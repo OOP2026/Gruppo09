@@ -1,38 +1,21 @@
 package model;
 
 public class Letto {
+    private int idLetto;     // Mappato su codiceletto del DB
+    private boolean occupato; //calcolato a runtime in base ai ricoveri attivi
 
-    private int ID_letto;
-    private boolean occupato;
-
-    public Letto(int ID_letto) {
-        this.ID_letto = ID_letto;
+    public Letto(int idLetto) {
+        this.idLetto = idLetto;
         this.occupato = false;
     }
 
     public void mostraInfo() {
-        if (occupato) {
-            System.out.println("Letto ID: " + ID_letto + " | Stato: OCCUPATO");
-        } else {
-            System.out.println("Letto ID: " + ID_letto + " | Stato: LIBERO");
-        }
+        System.out.println("Letto ID: " + idLetto + " | Stato: " + (occupato ? "OCCUPATO" : "LIBERO"));
     }
 
-    //Getter & Setter
-
-    public int getID_letto() {
-        return ID_letto;
-    }
-
-    public void setID_letto(int ID_letto) {
-        this.ID_letto = ID_letto;
-    }
-
-    public boolean isOccupato() {
-        return occupato;
-    }
-
-    public void setOccupato(boolean occupato) {
-        this.occupato = occupato;
-    }
+    // Getter e Setter
+    public int getIdLetto() { return idLetto; }
+    public void setIdLetto(int idLetto) { this.idLetto = idLetto; }
+    public boolean isOccupato() { return occupato; }
+    public void setOccupato(boolean occupato) { this.occupato = occupato; }
 }

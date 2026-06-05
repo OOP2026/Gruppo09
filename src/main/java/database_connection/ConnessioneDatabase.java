@@ -6,55 +6,48 @@ import java.sql.SQLException;
 
 public class ConnessioneDatabase {
 
-    // Istanza unica della classe (Pattern Singleton)
+    // Istanza statica per il pattern Singleton
     private static ConnessioneDatabase instance;
 
-    // Oggetto che gestisce la connessione fisica al database
+    // Oggetto per la gestione della connessione JDBC
     private Connection connection;
 
-    // Parametri di configurazione per l'accesso a PostgreSQL
+    // Parametri di configurazione del database locale
     private final String url = "jdbc:postgresql://localhost:5432/postgres";
     private final String user = "postgres";
     private final String password = "dbenryjar";
 
-    // Costruttore privato: impedisce la creazione di nuove istanze da fuori tramite "new"
+    // Costruttore privato per impedire istanziazioni esterne tramite new
     private ConnessioneDatabase() {
         try {
-            // Carica in memoria il driver JDBC per PostgreSQL
+            // Caricamento del driver driver JDBC di Postgres
             Class.forName("org.postgresql.Driver");
 
-            // Tenta di stabilire la connessione con i parametri indicati
+            // Apertura della connessione fisica
             this.connection = DriverManager.getConnection(url, user, password);
-            System.out.println("[DB] Connessione a PostgreSQL stabilita con successo!");
 
         } catch (ClassNotFoundException e) {
-            System.err.println("[DB ERRORE] Driver PostgreSQL non trovato.");
+            System.err.println("Driver PostgreSQL non trovato nel CLASSPATH.");
             e.printStackTrace();
         } catch (SQLException e) {
-            System.err.println("[DB ERRORE] Credenziali errate o database spento.");
+            System.err.println("Impossibile connettersi al DB: verificare credenziali o stato del server.");
             e.printStackTrace();
         }
     }
 
-    // Punto di accesso pubblico per ottenere l'unica istanza della connessione
+    // Restituisce l'istanza unica della connessione, creandola se nulla o chiusa
     public static ConnessioneDatabase getInstance() {
-        // Se non è ancora stata creata una connessione, la inizializza
-        if (instance == null) {
-            instance = new ConnessioneDatabase();
-        } else {
-            try {
-                // Se esiste già ma è stata chiusa, la riapre
-                if (instance.getConnection() == null || instance.getConnection().isClosed()) {
-                    instance = new ConnessioneDatabase();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
+        try {
+            if (instance == null || instance.connection == null || instance.connection.isClosed()) {
+                instance = new ConnessioneDatabase();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return instance;
     }
 
-    // Metodo getter per estrarre l'oggetto Connection necessario a eseguire le query nei DAO
+    // Getter per l'oggetto Connection utilizzabile dalle classi DAO
     public Connection getConnection() {
         return connection;
     }

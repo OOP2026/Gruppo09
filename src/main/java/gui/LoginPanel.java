@@ -19,35 +19,34 @@ public class LoginPanel {
         this.controller = controller;
         this.frame = frame;
 
-        // Ascoltatore reattivo associato al click del pulsante di login
+        // Gestione del click sul pulsante di login
         btnloginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Estrazione del testo inserito dall'utente nei campi grafici
+                // Lettura e pulizia degli input dell'utente
                 String username = txtUsernameTextField.getText().trim();
                 String password = new String(txtPasswordPasswordField.getPassword()).trim();
 
-                // Validazione locale dell'input per impedire l'invio di stringhe vuote
+                // Controllo preventivo sui campi vuoti
                 if (username.isEmpty() || password.isEmpty()) {
                     JOptionPane.showMessageDialog(frame, "Inserisci username e password!");
                     return;
                 }
 
-                // Inoltro delle credenziali al Controller
+                // Verifica delle credenziali tramite il controller
                 String ruolo = controller.login(username, password);
 
-                // Smistamento dei flussi di navigazione in base alla risposta del Controller
+                // Routing della schermata basato sul ruolo restituito
                 if (ruolo.equals("admin")) {
                     JOptionPane.showMessageDialog(frame, "Benvenuto Admin: " + username);
 
-                    // Creazione della cornice indipendente per l'area amministratore
+                    // Inizializzazione della finestra per l'amministratore
                     JFrame adminFrame = new JFrame("Area Amministratore");
                     AdminPanel adminPanel = new AdminPanel(controller, adminFrame, frame);
 
-                    // Impostazione della dimensione preferita di base per il pannello dell'amministratore
                     adminPanel.getMainPanel().setPreferredSize(new java.awt.Dimension(600, 450));
 
-                    // Configurazione del frame e passaggio del controllo visivo
+                    // Configurazione della finestra e scambio visibilità
                     adminFrame.setContentPane(adminPanel.getMainPanel());
                     adminFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     adminFrame.pack();
@@ -58,14 +57,13 @@ public class LoginPanel {
                 } else if (ruolo.equals("medico")) {
                     JOptionPane.showMessageDialog(frame, "Benvenuto Medico: " + username);
 
-                    // Creazione della cornice indipendente per l'area medica
+                    // Inizializzazione della finestra per il medico
                     JFrame medicoFrame = new JFrame("Area Medica");
-                    MedicoPanel medicoPanel = new MedicoPanel(controller, medicoFrame, frame,username);
+                    MedicoPanel medicoPanel = new MedicoPanel(controller, medicoFrame, frame);
 
-                    // Impostazione della dimensione preferita di base per il pannello del medico
                     medicoPanel.getMainPanel().setPreferredSize(new java.awt.Dimension(600, 450));
 
-                    // Configurazione del frame e passaggio del controllo visivo
+                    // Configurazione della finestra e scambio visibilità
                     medicoFrame.setContentPane(medicoPanel.getMainPanel());
                     medicoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     medicoFrame.pack();
@@ -74,7 +72,7 @@ public class LoginPanel {
                     frame.setVisible(false);
 
                 } else {
-                    // Feedback visivo di errore bloccante
+                    // Messaggio di errore in caso di credenziali errate
                     JOptionPane.showMessageDialog(frame, "Username o password errati!",
                             "Errore", JOptionPane.ERROR_MESSAGE);
                 }
@@ -82,7 +80,6 @@ public class LoginPanel {
         });
     }
 
-    // Restituisce il pannello grafico principale per poterlo inserire all'interno della finestra (JFrame)
     public JPanel getMainPanel() {
         return mainPanel;
     }
