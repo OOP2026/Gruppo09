@@ -4,6 +4,7 @@ import java.time.LocalTime;
 
 public class Prestazione {
 
+    private int idPrestazione;
     private String tipo;
     private LocalTime oraInizio;
     private LocalTime oraFine;
@@ -89,5 +90,13 @@ public class Prestazione {
 
     public void setRicovero(Ricovero ricovero) {
         this.ricovero = ricovero;
+    }
+
+    public int getIdPrestazione() {
+        return idPrestazione;
+    }
+
+    public void setIdPrestazione(int idPrestazione) {
+        this.idPrestazione = idPrestazione;
     }
 }

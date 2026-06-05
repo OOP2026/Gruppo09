@@ -17,14 +17,13 @@ public class MedicoPanel {
     private JButton btnAgendaGiornaliera;
     private JButton btnAgendaSettimanale;
     private JButton btnRegistraPrestazione;
-    private JButton btnDisponibilità;
     private JButton btnLogout;
 
     private Controller controller;
     private JFrame frame;            // La finestra corrente (Area Medica)
     private JFrame frameChiamante;   // La finestra di Login per consentire il ritorno al logout
 
-    public MedicoPanel(Controller controller, JFrame frame, JFrame frameChiamante) {
+    public MedicoPanel(Controller controller, JFrame frame, JFrame frameChiamante, String matricolaMedico) {
         this.controller = controller;
         this.frame = frame;
         this.frameChiamante = frameChiamante;
@@ -33,12 +32,14 @@ public class MedicoPanel {
         btnAgendaGiornaliera.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Il Controller interroga l'agenda del medico loggato e restituisce una lista reale (List<Prestazione>)
-                List<Prestazione> prestazioniOggi = controller.agendaGiornaliera();
+                // 1. Istanziamo il nuovo pannello dell'agenda passando controller, il frame attuale e la matricola
+                AgendaGiornalieraPanel agendaPanel = new AgendaGiornalieraPanel(controller, frame, matricolaMedico);
 
-                JOptionPane.showMessageDialog(frame, "Agenda giornaliera caricata.\nPrestazioni programmate per oggi: " + prestazioniOggi.size(),
-                        "Pianificazione Odierna", JOptionPane.INFORMATION_MESSAGE);
-                // La lista ottenuta in futuro verrà passata al modulo JTable per popolare l'elenco a schermo
+                // 2. Rendiamo visibile la JTable dell'agenda
+                agendaPanel.getFrame().setVisible(true);
+
+                // 3. Nascondiamo momentaneamente il menu principale del medico
+                frame.setVisible(false);
             }
         });
 
@@ -46,12 +47,10 @@ public class MedicoPanel {
         btnAgendaSettimanale.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Il Controller interroga l'agenda settimanale e restituisce l'elenco delle prestazioni
-                List<Prestazione> prestazioniSettimana = controller.agendaSettimanale();
-
-                JOptionPane.showMessageDialog(frame, "Agenda settimanale caricata.\nPrestazioni totali programmate: " + prestazioniSettimana.size(),
-                        "Pianificazione Settimanale", JOptionPane.INFORMATION_MESSAGE);
-                // La lista ottenuta verrà usata per aggiornare la tabella grafica dei turni settimanali
+                // Passiamo lo username del medico (che abbiamo verificato arrivi correttamente dal login)
+                AgendaSettimanalePanel settimanalePanel = new AgendaSettimanalePanel(controller, frame, matricolaMedico);
+                settimanalePanel.getFrame().setVisible(true);
+                frame.setVisible(false);
             }
         });
 
@@ -59,6 +58,7 @@ public class MedicoPanel {
         btnRegistraPrestazione.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+<<<<<<< HEAD
                 // acquisizione dati tramite finestre di dialogo grafiche modali
                 String tipo = JOptionPane.showInputDialog(frame, "Inserisci il tipo di prestazione (es. Visita Cardiologica):");
                 if (tipo == null || tipo.trim().isEmpty()) return;
@@ -115,6 +115,11 @@ public class MedicoPanel {
                     JOptionPane.showMessageDialog(frame, "Il medico risulta già occupato in altre prestazioni o assente.",
                             "Stato Disponibilità", JOptionPane.WARNING_MESSAGE);
                 }
+=======
+                RegistraPrestazionePanel registraPanel = new RegistraPrestazionePanel(controller, frame, matricolaMedico);
+                registraPanel.getFrame().setVisible(true);
+                frame.setVisible(false);
+>>>>>>> cf645cd16956947baae5210bd08c2cd2a50d227e
             }
         });
 

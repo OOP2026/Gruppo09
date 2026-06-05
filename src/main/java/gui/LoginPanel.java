@@ -34,7 +34,7 @@ public class LoginPanel {
                     return;
                 }
 
-                // Inoltro delle credenziali al Controller (Principio della leggerezza della GUI)
+                // Inoltro delle credenziali al Controller
                 String ruolo = controller.login(username, password);
 
                 // Smistamento dei flussi di navigazione in base alla risposta del Controller
@@ -61,7 +61,7 @@ public class LoginPanel {
 
                     // Creazione della cornice indipendente per l'area medica
                     JFrame medicoFrame = new JFrame("Area Medica");
-                    MedicoPanel medicoPanel = new MedicoPanel(controller, medicoFrame, frame);
+                    MedicoPanel medicoPanel = new MedicoPanel(controller, medicoFrame, frame,username);
 
                     // Impostazione della dimensione preferita di base per il pannello del medico
                     medicoPanel.getMainPanel().setPreferredSize(new Dimension(600, 450));
