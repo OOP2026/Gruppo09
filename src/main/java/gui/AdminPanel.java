@@ -1,12 +1,9 @@
 package gui;
 
 import controller.Controller;
-import model.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-
 
 public class AdminPanel {
 
@@ -16,113 +13,62 @@ public class AdminPanel {
     private JButton btnElencoSostituzioni;
     private JButton btnLogout;
 
+    private JTextField txtCodiceFiscale;
+    private JTextField txtNome;
+    private JTextField txtCognome;
+
     private Controller controller;
-    private JFrame frame;            // La finestra corrente (Area Amministratore)
-    private JFrame frameChiamante;   // La finestra di Login per consentire il ritorno al logout
+    private JFrame frame;            // Finestra corrente dell'area amministratore
+    private JFrame frameChiamante;   // Finestra di login precedente per consentire il ritorno al logout
 
-
+    // Costruttore principale per l'inizializzazione dei componenti e dei listener
     public AdminPanel(Controller controller, JFrame frame, JFrame frameChiamante) {
         this.controller = controller;
         this.frame = frame;
         this.frameChiamante = frameChiamante;
 
-        // Gestione dell'azione di inserimento/modifica di un paziente
+        // Apertura della schermata per la gestione dell'anagrafica pazienti
         btnGestisciPazienti.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // acquisizione dati tramite finestre di dialogo grafiche modali
-                String nome = JOptionPane.showInputDialog(frame, "Inserisci il nome del paziente:");
-                if (nome == null || nome.trim().isEmpty()) return;
-
-                String cognome = JOptionPane.showInputDialog(frame, "Inserisci il cognome del paziente:");
-                if (cognome == null || cognome.trim().isEmpty()) return;
-
-                String cf = JOptionPane.showInputDialog(frame, "Inserisci il Codice Fiscale del paziente:");
-                if (cf == null || cf.trim().isEmpty()) return;
-
-                // Impacchettamento dei dati grezzi all'interno dell'oggetto Entity corrispondente
-                Paziente nuovoPaziente = new Paziente(cf.trim(), nome.trim(), cognome.trim());
-
-                // Inoltro della richiesta al Controller e raccolta del verdetto boolean
-                boolean esito = controller.gestisciPazienti(nuovoPaziente);
-
-                if (esito) {
-                    JOptionPane.showMessageDialog(frame, "Paziente registrato con successo nel sistema!",
-                            "Operazione Completata", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Errore durante la registrazione del paziente.",
-                            "Errore di Validazione", JOptionPane.ERROR_MESSAGE);
-                }
+                PazientePanel pazientePanel = new PazientePanel(controller, frame);
+                pazientePanel.getFrame().setVisible(true);
+                frame.setVisible(false);
             }
         });
 
-        // Gestione della registrazione di un nuovo ricovero ospedaliero
+        // Apertura della schermata per la registrazione e controllo dei ricoveri
         btnGestisciRicoveri.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Esempio di interazione simulata: in futuro questi dati arriveranno da una form dedicata (es. NuovoRicoveroPanel)
-                // Al momento creiamo oggetti finti coerenti con i vincoli del Model per testare il flusso
-                Paziente pazienteTest = new Paziente("CF12345", "TestNome", "TestCognome");
-                Letto lettoTest = new Letto(10);
-
-                Ricovero nuovoRicovero = new Ricovero(
-                        101,
-                        pazienteTest,
-                        lettoTest,
-                        java.time.LocalDate.now(),
-                        java.time.LocalTime.now(),
-                        java.time.LocalDate.now().plusDays(5),
-                        java.time.LocalTime.of(12, 0)
-                );
-
-                // Trasmissione dell'oggetto ricovero al Controller per la verifica delle sovrapposizioni
-                boolean esito = controller.gestisciRicoveri(nuovoRicovero);
-
-                if (esito) {
-                    JOptionPane.showMessageDialog(frame, "Ricovero approvato. Posto letto prenotato con successo!",
-                            "Operazione Completata", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(frame, "Impossibile completare il ricovero: rilevata sovrapposizione temporale sul letto.",
-                            "Incompatibilità Oraria", JOptionPane.ERROR_MESSAGE);
-                }
+                RicoveroPanel ricoveroPanel = new RicoveroPanel(controller, frame);
+                ricoveroPanel.getFrame().setVisible(true);
+                frame.setVisible(false);
             }
         });
 
-        // Gestione della ricerca del personale medico sostitutivo
+        // Apertura della schermata per la ricerca dei medici sostituti disponibili
         btnElencoSostituzioni.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Configurazione di un'istanza di assenza per simulare la richiesta di sostituzione
-                Reparto repartoTest = new Reparto(1, "Cardiologia");
-                Medico medicoAssente = new Medico("rossi.mario", "pwd", "MAT001", repartoTest);
-                AssenzaMedico praticaAssenza = new AssenzaMedico(medicoAssente, java.time.LocalDate.now(), java.time.LocalDate.now().plusDays(3));
-
-                // Il Controller interroga il Model e restituisce una lista reale (List<Medico>)
-                List<Medico> mediciDisponibili = controller.elencoSostituzioni(praticaAssenza);
-
-                JOptionPane.showMessageDialog(frame, "Ricerca sostituzioni completata.\nMedici liberi trovati nel reparto: " + mediciDisponibili.size(),
-                        "Esito Ricerca", JOptionPane.INFORMATION_MESSAGE);
-                // La lista ottenuta in futuro verrà passata al modulo JTable per popolare l'elenco a schermo
+                SostituzioniPanel sostituzioniPanel = new SostituzioniPanel(controller, frame);
+                sostituzioniPanel.getFrame().setVisible(true);
+                frame.setVisible(false);
             }
         });
 
-        // Gestione della procedura di disconnessione (Logout)
+        // Gestione del logout con riattivazione del frame di login e distruzione del frame corrente
         btnLogout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Resetta lo stato utente e cancella la sessione corrente all'interno del Controller
                 controller.logout();
-
-                // Ripristino coordinato della visibilità delle finestre
-                frameChiamante.setVisible(true); // Rende nuovamente visibile la finestra di Login
-                frame.setVisible(false);         // Nasconde l'area amministrativa corrente
-                frame.dispose();                 // Distrugge la finestra corrente per liberare risorse di memoria RAM
+                frameChiamante.setVisible(true);
+                frame.setVisible(false);
+                frame.dispose();
             }
         });
     }
 
-
-    // Restituisce il pannello grafico principale per poterlo inserire all'interno della finestra (JFrame)
     public JPanel getMainPanel() {
         return mainPanel;
     }

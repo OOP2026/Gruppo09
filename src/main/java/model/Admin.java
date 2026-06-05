@@ -1,4 +1,10 @@
 package model;
+
+import dao.PazienteDAO;
+import dao.RicoveroDAO;
+import implementazioneDao.PazientePostgresDAO;
+import implementazioneDao.RicoveroPostgresDAO;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,25 +15,26 @@ public class Admin extends Utente {
     }
 
     public boolean gestisciPazienti(Paziente paziente) {
-        System.out.println("DB Operazione: Inserimento/Modifica nel database del paziente: " + paziente.getNome());
-        return true;
-        // logica di inserimento e modifica anagrafica pazienti
-        //restituisce true se sul DB l'operazione è andata a buon fine
+        PazienteDAO pazienteDao = new PazientePostgresDAO();
+        // Richiama l'operazione atomica del DAO (inserimento/modifica)
+        return pazienteDao.inserisciPaziente(paziente);
     }
 
     public boolean gestisciRicoveri(Ricovero ricovero) {
-        System.out.println("DB Operazione: Validazione e inserimento ricovero per il letto: " + ricovero.getLetto().getID_letto());
-        return true;
-        // logica di registrazione ricoveri con controllo sovrapposizione letti
-        //True se il letto è libero
-    }
+        RicoveroDAO ricoveroDao = new RicoveroPostgresDAO();
 
+        // 1. Chiede al database se ci sono sovrapposizioni temporali sul posto letto
+        if (ricoveroDao.checkSovrapposizione(ricovero)) {
+            return false; // Rifiuta la prenotazione
+        }
+
+        // 2. Se il posto è libero, procede con l'inserimento del record
+        return ricoveroDao.inserisciRicovero(ricovero);
+    }
 
     public List<Medico> elencoSostituzioni(AssenzaMedico assenza) {
         System.out.println("DB Query: Ricerca medici dello stesso reparto liberi durante l'assenza di: " + assenza.getMedico().getUsername());
         return new ArrayList<Medico>();
-        // Riceve l'oggetto della malattia inserito e RESTITUISCE una lista reale
-        // di Medici sostitutivi
     }
 
     @Override
