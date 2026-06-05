@@ -19,18 +19,23 @@ public class Turno {
         this.medico = medico;
     }
 
-    // Verifica algoritmica in memoria per stabilire se un orario rientra nella fascia del turno
+    // Verifica se un orario rientra nella fascia del turno
     public boolean copreFascia(LocalTime ora) {
         return !ora.isBefore(oraInizio) && !ora.isAfter(oraFine);
     }
 
+    // Verifica se una fascia oraria è interamente coperta dal turno
+    public boolean copreFasciaCompleta(LocalTime inizio, LocalTime fine) {
+        return !inizio.isBefore(oraInizio) && !fine.isAfter(oraFine);
+    }
+
     public void mostraInfo() {
-        System.out.println("Turno ID: " + idTurno + " | Giorno: " + giornoSettimana +
+        System.out.println("Turno ID: " + idTurno +
+                " | Giorno: " + giornoSettimana +
                 " | Dalle: " + oraInizio + " alle: " + oraFine +
                 " | Medico: " + medico.getUsername());
     }
 
-    // Getter & Setter
     public int getIdTurno() { return idTurno; }
     public void setIdTurno(int idTurno) { this.idTurno = idTurno; }
     public LocalTime getOraInizio() { return oraInizio; }
@@ -38,7 +43,7 @@ public class Turno {
     public LocalTime getOraFine() { return oraFine; }
     public void setOraFine(LocalTime oraFine) { this.oraFine = oraFine; }
     public String getGiornoSettimana() { return giornoSettimana; }
-    public void setGiornoSettimana(String giornoSettimana) { this.giornoSettimana = giornoSettimana; }
+    public void setGiornoSettimana(String g) { this.giornoSettimana = g; }
     public Medico getMedico() { return medico; }
     public void setMedico(Medico medico) { this.medico = medico; }
 }

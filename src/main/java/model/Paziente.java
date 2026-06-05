@@ -11,16 +11,17 @@ public class Paziente {
         this.cognome = cognome;
     }
 
-    // Fornisce i dati essenziali del paziente per le liste della GUI
+    // Restituisce una stringa riassuntiva del paziente per le liste della GUI
     public String getInfoBase() {
         return nome + " " + cognome + " - " + codiceFiscale;
     }
 
     public void mostraInfo() {
-        System.out.println("Nome: " + nome + " | Cognome: " + cognome + " | CF: " + codiceFiscale);
+        System.out.println("Nome: " + nome +
+                " | Cognome: " + cognome +
+                " | CF: " + codiceFiscale);
     }
 
-    // Getter e Setter
     public String getCodiceFiscale() { return codiceFiscale; }
     public void setCodiceFiscale(String codiceFiscale) { this.codiceFiscale = codiceFiscale; }
     public String getNome() { return nome; }

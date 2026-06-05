@@ -1,16 +1,21 @@
 package dao;
 
 import model.Prestazione;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 public interface PrestazioneDAO {
-    // Recupera le visite e gli interventi del giorno per un medico
+    // Recupera le prestazioni del giorno corrente per un medico
     List<Prestazione> getAgendaGiornaliera(String matricolaMedico);
 
-    // Recupera le prestazioni della settimana corrente per un medico
-    List<Prestazione> getAgendaSettimanale(String usernameMedico);
+    // Recupera le prestazioni dei prossimi 7 giorni per un medico
+    List<Prestazione> getAgendaSettimanale(String matricolaMedico);
 
-    // Registra una nuova prestazione medica associata a un ricovero
-    String registraPrestazione(String usernameMedico, int idRicovero, String tipo, LocalTime oraInizio, LocalTime oraFine, String esito);
+    // Registra una nuova prestazione dopo i controlli di turno e sovrapposizione
+    String registraPrestazione(String matricolaMedico, int idRicovero, String tipo,
+                               LocalDate data, LocalTime oraInizio, LocalTime oraFine, String esito);
+
+    // Aggiorna l'esito di una prestazione già registrata
+    boolean aggiornaEsito(int idPrestazione, String nuovoEsito);
 }

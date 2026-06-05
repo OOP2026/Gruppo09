@@ -22,23 +22,19 @@ public class RegistraPrestazionePanel {
     private JFrame frameChiamante;
     private Controller controller;
 
-    // Il costruttore accetta solo i riferimenti per il controllo visivo delle viste
     public RegistraPrestazionePanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
 
-        // Configurazione della finestra di registrazione
         this.frame = new JFrame("Registra Nuova Prestazione");
         this.frame.setContentPane(mainPanel);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Popolamento iniziale della tendina dei ricoveri attivi
         popolaMenuRicoveri();
 
         this.frame.pack();
         this.frame.setLocationRelativeTo(frameChiamante);
 
-        // Gestione del click sul pulsante Salva
         btnSalva.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -46,7 +42,6 @@ public class RegistraPrestazionePanel {
             }
         });
 
-        // Gestione del click sul pulsante Annulla
         btnAnnulla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -65,28 +60,25 @@ public class RegistraPrestazionePanel {
                 return;
             }
 
-            // Isola l'ID numerico del ricovero tagliando la stringa della ComboBox
-            String[] parti = itemSelezionato.split("\\|");
-            int idRicovero = Integer.parseInt(parti[0].trim());
+            // Estrae l'ID numerico dal testo formattato della ComboBox
+            int idRicovero = Integer.parseInt(itemSelezionato.split("\\|")[0].trim());
 
             String tipo = txtTipo.getText().trim();
-            String esito = txtEsito.getText().trim();
-
             if (tipo.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Il campo 'Tipo Visita' è obbligatorio.", "Errore", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(frame, "Il campo Tipo Visita è obbligatorio.", "Errore", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Conversione testuale delle fasce orarie inserite
             LocalTime oraInizio = LocalTime.parse(txtOraInizio.getText().trim());
             LocalTime oraFine = LocalTime.parse(txtOraFine.getText().trim());
+            String esito = txtEsito.getText().trim();
 
             if (!oraFine.isAfter(oraInizio)) {
                 JOptionPane.showMessageDialog(frame, "L'ora di fine deve essere successiva all'ora di inizio.", "Errore", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Delegazione dell'inserimento al controller senza passaggio di dati di sessione dalla GUI
+            // La data viene impostata automaticamente a oggi dal Controller
             String risultato = controller.registraPrestazione(idRicovero, tipo, oraInizio, oraFine, esito);
 
             if (risultato.equals("OK")) {
@@ -99,17 +91,15 @@ public class RegistraPrestazionePanel {
             }
 
         } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(frame, "Formato orario non valido. Usa il formato HH:mm (es. 08:30).", "Errore Input", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Formato orario non valido. Usa HH:mm (es. 08:30).", "Errore Input", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(frame, "Errore imprevisto durante il salvataggio:\n" + ex.getMessage(), "Errore di Sistema", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Errore imprevisto: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
     }
 
     private void popolaMenuRicoveri() {
-        // Recupera i soli ricoveri attivi formattati in formato stringa
         List<String> ricoveri = controller.recuperaRicoveriPerComboBox();
-
         if (ricoveri.isEmpty()) {
             cmbRicovero.addItem("Nessun ricovero disponibile nel sistema");
             btnSalva.setEnabled(false);

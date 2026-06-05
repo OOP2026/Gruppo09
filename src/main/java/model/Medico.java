@@ -1,8 +1,5 @@
 package model;
 
-import dao.PrestazioneDAO;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public class Medico extends Utente {
@@ -15,33 +12,19 @@ public class Medico extends Utente {
         this.reparto = reparto;
     }
 
-    // Interroga il DB tramite il passaggio dell'interfaccia DAO
-    public List<Prestazione> agendaGiornaliera(PrestazioneDAO prestazioneDao) {
-        return prestazioneDao.getAgendaGiornaliera(this.matricola);
-    }
-
-    // Interroga il DB tramite il passaggio dell'interfaccia DAO
-    public List<Prestazione> agendaSettimanale(PrestazioneDAO prestazioneDao) {
-        return prestazioneDao.getAgendaSettimanale(getUsername());
-    }
-
-    // Delega la registrazione della prestazione al DAO competente
-    public String registraPrestazione(int idRicovero, String tipo, LocalTime oraInizio, LocalTime oraFine, String esito, PrestazioneDAO prestazioneDao) {
-        return prestazioneDao.registraPrestazione(getUsername(), idRicovero, tipo, oraInizio, oraFine, esito);
-    }
-
-    // Verifica la disponibilità oraria del medico sfruttando il metodo DAO validato
-    public boolean disponibilita(LocalDate data, LocalTime inizio, LocalTime fine, dao.MedicoDAO medicoDao) {
-        return medicoDao.verificaDisponibilita(this.matricola, data, inizio, fine);
+    // Controlla in memoria se il medico appartiene al reparto passato come parametro
+    public boolean appartieneAReparto(int idReparto) {
+        return reparto != null && reparto.getIdReparto() == idReparto;
     }
 
     @Override
     public void mostraInfo() {
         String nomeReparto = (reparto != null) ? reparto.getNome() : "Nessun reparto";
-        System.out.println("Medico: " + getUsername() + " | Matricola: " + matricola + " | Reparto: " + nomeReparto);
+        System.out.println("Medico: " + getUsername() +
+                " | Matricola: " + matricola +
+                " | Reparto: " + nomeReparto);
     }
 
-    // Getter e Setter
     public String getMatricola() { return matricola; }
     public void setMatricola(String matricola) { this.matricola = matricola; }
     public Reparto getReparto() { return reparto; }

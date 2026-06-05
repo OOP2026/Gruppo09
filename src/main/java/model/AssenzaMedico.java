@@ -1,8 +1,6 @@
 package model;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AssenzaMedico {
 
@@ -16,18 +14,16 @@ public class AssenzaMedico {
         this.dataFine = dataFine;
     }
 
-    // Individua i turni rimasti scoperti interpellando lo strato DAO competente
-    public List<Turno> getTurniScoperti(dao.MedicoDAO medicoDao) {
-        // Delega la ricerca delle fasce orarie scoperte al DAO del medico
-        return new ArrayList<>();
+    // Controlla in memoria se una data rientra nel periodo di assenza
+    public boolean copreData(LocalDate data) {
+        return !data.isBefore(dataInizio) && !data.isAfter(dataFine);
     }
 
     public void mostraInfo() {
-        System.out.println("Assenza del medico: " + medico.getUsername() +
+        System.out.println("Assenza medico: " + medico.getUsername() +
                 " | Dal: " + dataInizio + " al: " + dataFine);
     }
 
-    // Getter & Setter
     public LocalDate getDataInizio() { return dataInizio; }
     public void setDataInizio(LocalDate dataInizio) { this.dataInizio = dataInizio; }
     public LocalDate getDataFine() { return dataFine; }

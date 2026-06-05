@@ -1,6 +1,6 @@
 package controller;
 
-import dao.UtenteDAO;
+import dao.*;
 import implementazioneDao.*;
 import model.*;
 import java.time.LocalDate;
@@ -11,14 +11,27 @@ import java.util.List;
 public class Controller {
 
     private Utente utenteLoggato;
-    private UtenteDAO utenteDao;
+
+    // I DAO sono istanziati una volta sola nel costruttore e riutilizzati
+    private final UtenteDAO utenteDao;
+    private final PazienteDAO pazienteDao;
+    private final RicoveroDAO ricoveroDao;
+    private final MedicoDAO medicoDao;
+    private final PrestazioneDAO prestazioneDao;
+    private final LettoDAO lettoDao;
 
     public Controller() {
-        // Inizializzazione del DAO di autenticazione tramite il costruttore
-        this.utenteDao = new UtentePostgresDAO();
+        this.utenteDao      = new UtentePostgresDAO();
+        this.pazienteDao    = new PazientePostgresDAO();
+        this.ricoveroDao    = new RicoveroPostgresDAO();
+        this.medicoDao      = new MedicoPostgresDAO();
+        this.prestazioneDao = new PrestazionePostgresDAO();
+        this.lettoDao       = new LettoPostgresDAO();
     }
 
-    // --- AUTENTICAZIONE E GESTIONE SESSIONE ---
+    // -------------------------------------------------------------------------
+    // AUTENTICAZIONE
+    // -------------------------------------------------------------------------
 
     public String login(String username, String password) {
         String ruolo = utenteDao.verificaLogin(username, password);
@@ -32,72 +45,108 @@ public class Controller {
         this.utenteLoggato = null;
     }
 
-    // --- LOGICA AMMINISTRATORE (DOWNCASTING SICURO) ---
+    public Utente getUtenteLoggato() {
+        return utenteLoggato;
+    }
 
+    // -------------------------------------------------------------------------
+    // FUNZIONALITÀ AMMINISTRATORE
+    // -------------------------------------------------------------------------
+
+    // Inserisce o aggiorna l'anagrafica di un paziente
     public boolean gestisciPazienti(Paziente paziente) {
-        if (utenteLoggato instanceof Admin) {
-            return ((Admin) utenteLoggato).gestisciPazienti(paziente, new PazientePostgresDAO());
-        }
-        return false;
+        if (!(utenteLoggato instanceof Admin)) return false;
+        return pazienteDao.inserisciPaziente(paziente);
     }
 
+    // Verifica la sovrapposizione e, se libero, registra il ricovero
     public boolean gestisciRicoveri(Ricovero ricovero) {
-        if (utenteLoggato instanceof Admin) {
-            return ((Admin) utenteLoggato).gestisciRicoveri(ricovero, new RicoveroPostgresDAO());
-        }
-        return false;
+        if (!(utenteLoggato instanceof Admin)) return false;
+        if (ricoveroDao.checkSovrapposizione(ricovero)) return false;
+        return ricoveroDao.inserisciRicovero(ricovero);
     }
 
+    // Restituisce i medici sostitutivi disponibili per il periodo indicato
     public List<Medico> calcolaSostituti(String matricolaAssente, LocalDate inizio, LocalDate fine) {
-        if (utenteLoggato instanceof Admin) {
-            return ((Admin) utenteLoggato).elencoSostituzioni(matricolaAssente, inizio, fine, new MedicoPostgresDAO());
-        }
-        return new ArrayList<>();
+        if (!(utenteLoggato instanceof Admin)) return new ArrayList<>();
+        return medicoDao.getSostitutiIdonei(matricolaAssente, inizio, fine);
     }
 
-    // --- LOGICA MEDICO (DOWNCASTING SICURO) ---
+    // Restituisce i pazienti con dimissione prevista oggi
+    public List<Paziente> getPazientiInScadenzaOggi() {
+        if (!(utenteLoggato instanceof Admin)) return new ArrayList<>();
+        return pazienteDao.getPazientiInScadenza(LocalDate.now());
+    }
 
+    // Restituisce i pazienti con dimissione prevista in una data specifica
+    public List<Paziente> getPazientiInScadenza(LocalDate data) {
+        if (!(utenteLoggato instanceof Admin)) return new ArrayList<>();
+        return pazienteDao.getPazientiInScadenza(data);
+    }
+
+    // Restituisce i letti di un reparto con il loro stato attuale di occupazione
+    public List<Letto> getLettiPerReparto(int idReparto) {
+        if (!(utenteLoggato instanceof Admin)) return new ArrayList<>();
+        return lettoDao.getLettiPerReparto(idReparto);
+    }
+
+    // -------------------------------------------------------------------------
+    // FUNZIONALITÀ MEDICO
+    // -------------------------------------------------------------------------
+
+    // Restituisce le prestazioni del medico loggato per la giornata odierna
     public List<Prestazione> agendaGiornaliera() {
-        if (utenteLoggato instanceof Medico) {
-            return ((Medico) utenteLoggato).agendaGiornaliera(new PrestazionePostgresDAO());
-        }
-        return new ArrayList<>();
+        if (!(utenteLoggato instanceof Medico)) return new ArrayList<>();
+        return prestazioneDao.getAgendaGiornaliera(((Medico) utenteLoggato).getMatricola());
     }
 
+    // Restituisce le prestazioni del medico loggato per i prossimi 7 giorni
     public List<Prestazione> agendaSettimanale() {
-        if (utenteLoggato instanceof Medico) {
-            return ((Medico) utenteLoggato).agendaSettimanale(new PrestazionePostgresDAO());
-        }
-        return new ArrayList<>();
+        if (!(utenteLoggato instanceof Medico)) return new ArrayList<>();
+        return prestazioneDao.getAgendaSettimanale(((Medico) utenteLoggato).getMatricola());
     }
 
-    // Metodo allineato alla firma richiesta da RegistraPrestazionePanel
-    public String registraPrestazione(int idRicovero, String tipo, LocalTime oraInizio, LocalTime oraFine, String esito) {
-        if (utenteLoggato instanceof Medico) {
-            return ((Medico) utenteLoggato).registraPrestazione(idRicovero, tipo, oraInizio, oraFine, esito, new PrestazionePostgresDAO());
-        }
-        return "Errore: Operazione non consentita per l'utente corrente.";
+    // Registra una nuova prestazione dopo i controlli di turno e sovrapposizione
+    public String registraPrestazione(int idRicovero, String tipo,
+                                      LocalTime oraInizio, LocalTime oraFine, String esito) {
+        if (!(utenteLoggato instanceof Medico)) return "Errore: operazione non consentita.";
+        String matricola = ((Medico) utenteLoggato).getMatricola();
+        return prestazioneDao.registraPrestazione(matricola, idRicovero, tipo,
+                LocalDate.now(), oraInizio, oraFine, esito);
     }
 
-    // --- METODI DI SOLA LETTURA PER POPOLARE I COMPONENTI DELLA GUI ---
+    // Aggiorna l'esito di una prestazione già registrata
+    public boolean aggiornaEsitoPrestazione(int idPrestazione, String nuovoEsito) {
+        if (!(utenteLoggato instanceof Medico)) return false;
+        return prestazioneDao.aggiornaEsito(idPrestazione, nuovoEsito);
+    }
+
+    // -------------------------------------------------------------------------
+    // METODI DI LETTURA PER POPOLARE I COMPONENTI DELLA GUI
+    // -------------------------------------------------------------------------
 
     public List<Paziente> recuperaTuttiPazienti() {
-        return new PazientePostgresDAO().getAllPazienti();
+        return pazienteDao.getAllPazienti();
     }
 
     public List<Letto> recuperaTuttiLetti() {
-        return new LettoPostgresDAO().getAllLetti();
+        return lettoDao.getAllLetti();
     }
 
     public List<Medico> recuperaTuttiMedici() {
-        return new MedicoPostgresDAO().getAllMedici();
+        return medicoDao.getAllMedici();
+    }
+
+    public List<Medico> recuperaMediciPerReparto(int idReparto) {
+        return medicoDao.getMediciPerReparto(idReparto);
     }
 
     public List<String> recuperaRicoveriPerComboBox() {
-        return new RicoveroPostgresDAO().getRicoveriAttiviPerComboBox();
+        return ricoveroDao.getRicoveriAttiviPerComboBox();
     }
 
-    public boolean checkDisponibilitaMedico(String matricolaMedico, LocalDate data, LocalTime oraInizio, LocalTime oraFine) {
-        return new MedicoPostgresDAO().verificaDisponibilita(matricolaMedico, data, oraInizio, oraFine);
+    public boolean checkDisponibilitaMedico(String matricolaMedico, LocalDate data,
+                                            LocalTime oraInizio, LocalTime oraFine) {
+        return medicoDao.verificaDisponibilita(matricolaMedico, data, oraInizio, oraFine);
     }
 }

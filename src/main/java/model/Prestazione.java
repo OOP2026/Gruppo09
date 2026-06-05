@@ -1,20 +1,23 @@
 package model;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class Prestazione {
 
     private int idPrestazione;
     private String tipo;
+    private LocalDate data;
     private LocalTime oraInizio;
     private LocalTime oraFine;
     private String esito;
     private Medico medico;
     private Ricovero ricovero;
 
-    public Prestazione(String tipo, LocalTime oraInizio, LocalTime oraFine,
+    public Prestazione(String tipo, LocalDate data, LocalTime oraInizio, LocalTime oraFine,
                        Medico medico, Ricovero ricovero) {
         this.tipo = tipo;
+        this.data = data;
         this.oraInizio = oraInizio;
         this.oraFine = oraFine;
         this.esito = null;
@@ -22,30 +25,32 @@ public class Prestazione {
         this.ricovero = ricovero;
     }
 
-    // Confronto matematico in memoria tra due intervalli orari
+    // Controlla in memoria se due prestazioni si sovrappongono nella stessa giornata
     public boolean checkSovrapposizione(Prestazione altra) {
-        return this.oraInizio.isBefore(altra.getOraFine()) && this.oraFine.isAfter(altra.getOraInizio());
+        if (!this.data.equals(altra.getData())) return false;
+        return this.oraInizio.isBefore(altra.getOraFine()) &&
+                this.oraFine.isAfter(altra.getOraInizio());
     }
 
-    // Modifica l'esito localmente e rimanda la persistenza sul database al rispettivo DAO
-    public boolean modificaEsito(String nuovoEsito, dao.PrestazioneDAO prestazioneDao) {
+    // Aggiorna l'esito in memoria; la persistenza su DB è delegata al Controller tramite DAO
+    public void modificaEsito(String nuovoEsito) {
         this.esito = nuovoEsito;
-        // Supponendo un metodo di aggiornamento nel DAO
-        return true;
     }
 
     public void mostraInfo() {
         System.out.println("Prestazione: " + tipo +
+                " | Data: " + data +
                 " | Dalle: " + oraInizio + " alle: " + oraFine +
                 " | Medico: " + medico.getUsername() +
                 " | Esito: " + (esito != null ? esito : "non ancora compilato"));
     }
 
-    // Getter & Setter
     public int getIdPrestazione() { return idPrestazione; }
     public void setIdPrestazione(int idPrestazione) { this.idPrestazione = idPrestazione; }
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
+    public LocalDate getData() { return data; }
+    public void setData(LocalDate data) { this.data = data; }
     public LocalTime getOraInizio() { return oraInizio; }
     public void setOraInizio(LocalTime oraInizio) { this.oraInizio = oraInizio; }
     public LocalTime getOraFine() { return oraFine; }

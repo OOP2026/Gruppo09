@@ -14,7 +14,14 @@ public class Stanza {
         this.letti = new ArrayList<>();
     }
 
-    // Filtra i letti della stanza basandosi sullo stato transiente in memoria
+    // Aggiunge un letto alla stanza
+    public void aggiungiLetto(Letto letto) {
+        if (letto != null && !this.letti.contains(letto)) {
+            this.letti.add(letto);
+        }
+    }
+
+    // Restituisce i letti della stanza che risultano liberi in memoria
     public List<Letto> getLettiDisponibili() {
         List<Letto> disponibili = new ArrayList<>();
         for (Letto letto : letti) {
@@ -26,10 +33,11 @@ public class Stanza {
     }
 
     public void mostraInfo() {
-        System.out.println("Stanza numero: " + numero + " | Capienza: " + capienza);
+        System.out.println("Stanza numero: " + numero +
+                " | Capienza: " + capienza +
+                " | Letti registrati: " + letti.size());
     }
 
-    // Getter e Setter
     public int getNumero() { return numero; }
     public void setNumero(int numero) { this.numero = numero; }
     public int getCapienza() { return capienza; }

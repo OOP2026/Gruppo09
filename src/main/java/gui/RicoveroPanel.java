@@ -28,17 +28,16 @@ public class RicoveroPanel {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
 
-        // Configurazione della finestra per la registrazione del ricovero
         this.frame = new JFrame("Registrazione Nuovo Ricovero");
         this.frame.setContentPane(mainPanel);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Il pack() va dopo il popolamento per calcolare le dimensioni corrette
+        popolaMenuTendina();
+
         this.frame.pack();
         this.frame.setLocationRelativeTo(frameChiamante);
 
-        // Caricamento dei dati iniziali nei menu a tendina
-        popolaMenuTendina();
-
-        // Gestione del click sul pulsante Salva
         btnSalva.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -48,10 +47,9 @@ public class RicoveroPanel {
                     String dataFineRaw = txtDataFine.getText().trim();
                     String oraFineRaw = txtOraFine.getText().trim();
 
-                    // Validazione locale superficiale sulla presenza dei dati
-                    if (dataInizioRaw.isEmpty() || oraInizioRaw.isEmpty() || dataFineRaw.isEmpty() || oraFineRaw.isEmpty()) {
-                        JOptionPane.showMessageDialog(frame, "Tutti i campi devono essere compilati!",
-                                "Errore di Validazione", JOptionPane.ERROR_MESSAGE);
+                    if (dataInizioRaw.isEmpty() || oraInizioRaw.isEmpty() ||
+                            dataFineRaw.isEmpty() || oraFineRaw.isEmpty()) {
+                        JOptionPane.showMessageDialog(frame, "Tutti i campi devono essere compilati!", "Errore", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -59,53 +57,44 @@ public class RicoveroPanel {
                     Integer idLettoSelezionato = (Integer) cmbLetti.getSelectedItem();
 
                     if (cfSelezionato == null || idLettoSelezionato == null) {
-                        JOptionPane.showMessageDialog(frame, "Seleziona un paziente e un letto validi!",
-                                "Dati Mancanti", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, "Seleziona un paziente e un letto validi!", "Dati Mancanti", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    // Conversione delle stringhe nei rispettivi tipi temporali
                     LocalDate dataInizio = LocalDate.parse(dataInizioRaw);
                     LocalTime oraInizio = LocalTime.parse(oraInizioRaw);
                     LocalDate dataDimissionePrevista = LocalDate.parse(dataFineRaw);
                     LocalTime oraDimissionePrevista = LocalTime.parse(oraFineRaw);
 
-                    // Controllo logico di congruenza temporale delle date inserite
                     if (dataDimissionePrevista.isBefore(dataInizio)) {
-                        JOptionPane.showMessageDialog(frame, "La data di fine non può essere precedente a quella di inizio!",
-                                "Incongruenza Temporale", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, "La data di fine non può essere precedente a quella di inizio!", "Errore", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    // Istanziazione dell'entità temporanea da trasmettere al controller
+                    // Costruisce un oggetto Ricovero minimo con i soli dati necessari al Controller
                     Paziente pazienteTemporaneo = new Paziente(cfSelezionato, "", "");
                     Letto lettoTemporaneo = new Letto(idLettoSelezionato);
-                    Ricovero nuovoRicovero = new Ricovero(0, pazienteTemporaneo, lettoTemporaneo, dataInizio, oraInizio, dataDimissionePrevista, oraDimissionePrevista);
+                    Ricovero nuovoRicovero = new Ricovero(0, pazienteTemporaneo, lettoTemporaneo,
+                            dataInizio, oraInizio, dataDimissionePrevista, oraDimissionePrevista);
 
-                    // Esecuzione dell'operazione di business tramite il controller
                     boolean esito = controller.gestisciRicoveri(nuovoRicovero);
 
                     if (esito) {
-                        JOptionPane.showMessageDialog(frame, "Ricovero registraro con successo!",
-                                "Operazione Completata", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, "Ricovero registrato con successo!", "Operazione Completata", JOptionPane.INFORMATION_MESSAGE);
                         chiudiETorna();
                     } else {
-                        JOptionPane.showMessageDialog(frame, "Il posto letto selezionato è già occupato nel periodo indicato.",
-                                "Posto Letto Occupato", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, "Il letto selezionato è già occupato nel periodo indicato.", "Letto Occupato", JOptionPane.ERROR_MESSAGE);
                     }
 
                 } catch (java.time.format.DateTimeParseException ex) {
-                    JOptionPane.showMessageDialog(frame, "Formato data o ora non valido!\nUsa AAAA-MM-GG per le date e HH:MM per le ore.",
-                            "Errore Formato", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Formato non valido.\nData: AAAA-MM-GG | Ora: HH:mm", "Errore Formato", JOptionPane.ERROR_MESSAGE);
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    JOptionPane.showMessageDialog(frame, "Errore imprevisto: " + ex.getMessage(),
-                            "Errore", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(frame, "Errore imprevisto: " + ex.getMessage(), "Errore", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
-        // Gestione del click sul pulsante Annulla
         btnAnnulla.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -115,7 +104,6 @@ public class RicoveroPanel {
     }
 
     private void popolaMenuTendina() {
-        // Popolamento della JComboBox dei pazienti recuperati dal database
         List<Paziente> listaPazienti = controller.recuperaTuttiPazienti();
         if (listaPazienti != null) {
             for (Paziente p : listaPazienti) {
@@ -123,7 +111,6 @@ public class RicoveroPanel {
             }
         }
 
-        // Popolamento della JComboBox dei letti (corretto con il nuovo metodo camelCase)
         List<Letto> listaLetti = controller.recuperaTuttiLetti();
         if (listaLetti != null) {
             for (Letto l : listaLetti) {
@@ -133,7 +120,6 @@ public class RicoveroPanel {
     }
 
     private void chiudiETorna() {
-        // Ripristino della dashboard chiamante e rilascio delle risorse correnti
         frameChiamante.setVisible(true);
         frame.setVisible(false);
         frame.dispose();

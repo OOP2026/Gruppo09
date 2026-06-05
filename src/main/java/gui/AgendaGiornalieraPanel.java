@@ -11,44 +11,67 @@ import java.util.List;
 public class AgendaGiornalieraPanel {
     private JPanel mainPanel;
     private JTable tblAgenda;
+    private JButton btnModificaEsito;
     private JButton btnChiudi;
 
     private JFrame frame;
     private JFrame frameChiamante;
     private Controller controller;
     private DefaultTableModel tableModel;
+    private List<Prestazione> listaPrestazioni;
 
-    // Il costruttore accetta solo i riferimenti di controllo, rispettando l'isolamento dei dati
     public AgendaGiornalieraPanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
 
-        // Configurazione della cornice visiva per l'agenda
         this.frame = new JFrame("Agenda Giornaliera Medico");
         this.frame.setContentPane(mainPanel);
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Inizializzazione della tabella e caricamento dei record
         configuraTabella();
         caricaDati();
 
         this.frame.pack();
         this.frame.setLocationRelativeTo(frameChiamante);
 
-        // Gestione del click sul pulsante Chiudi
+        // Permette di modificare l'esito della prestazione selezionata in tabella
+        btnModificaEsito.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int rigaSelezionata = tblAgenda.getSelectedRow();
+                if (rigaSelezionata < 0) {
+                    JOptionPane.showMessageDialog(frame, "Seleziona una prestazione dalla tabella.", "Attenzione", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                Prestazione selezionata = listaPrestazioni.get(rigaSelezionata);
+                String nuovoEsito = JOptionPane.showInputDialog(frame,
+                        "Inserisci l'esito della prestazione:",
+                        selezionata.getEsito());
+
+                if (nuovoEsito != null && !nuovoEsito.trim().isEmpty()) {
+                    boolean ok = controller.aggiornaEsitoPrestazione(selezionata.getIdPrestazione(), nuovoEsito.trim());
+                    if (ok) {
+                        JOptionPane.showMessageDialog(frame, "Esito aggiornato con successo.", "Successo", JOptionPane.INFORMATION_MESSAGE);
+                        caricaDati(); // Ricarica la tabella per mostrare il valore aggiornato
+                    } else {
+                        JOptionPane.showMessageDialog(frame, "Errore durante l'aggiornamento.", "Errore", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
         btnChiudi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Ripristino del menu principale del medico e distruzione della finestra corrente
                 frameChiamante.setVisible(true);
                 frame.setVisible(false);
-                frame.dispose(); // Libera la memoria RAM occupata dal frame
+                frame.dispose();
             }
         });
     }
 
     private void configuraTabella() {
-        // Configura il modello in modo da rendere le celle non modificabili direttamente
         tableModel = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -66,15 +89,12 @@ public class AgendaGiornalieraPanel {
 
     private void caricaDati() {
         tableModel.setRowCount(0);
+        listaPrestazioni = controller.agendaGiornaliera();
 
-        // Recupera le degenze odierne sfruttando lo stato della sessione interna del controller
-        List<Prestazione> lista = controller.agendaGiornaliera();
-
-        if (lista.isEmpty()) {
+        if (listaPrestazioni.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Nessuna prestazione in agenda per oggi.", "Agenda", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            for (Prestazione p : lista) {
-                // Associazione corretta tramite il metodo camelCase della classe Ricovero
+            for (Prestazione p : listaPrestazioni) {
                 int idRicovero = (p.getRicovero() != null) ? p.getRicovero().getIdRicovero() : 0;
                 tableModel.addRow(new Object[]{
                         p.getIdPrestazione(),

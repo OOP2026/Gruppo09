@@ -1,8 +1,10 @@
 package model;
 
 public class Letto {
-    private int idLetto;     // Mappato su codiceletto del DB
-    private boolean occupato; //calcolato a runtime in base ai ricoveri attivi
+    // Corrisponde a codiceletto nel DB, univoco nell'intero ospedale
+    private int idLetto;
+    // Calcolato a runtime dal Controller in base ai ricoveri attivi
+    private boolean occupato;
 
     public Letto(int idLetto) {
         this.idLetto = idLetto;
@@ -10,10 +12,10 @@ public class Letto {
     }
 
     public void mostraInfo() {
-        System.out.println("Letto ID: " + idLetto + " | Stato: " + (occupato ? "OCCUPATO" : "LIBERO"));
+        System.out.println("Letto ID: " + idLetto +
+                " | Stato: " + (occupato ? "OCCUPATO" : "LIBERO"));
     }
 
-    // Getter e Setter
     public int getIdLetto() { return idLetto; }
     public void setIdLetto(int idLetto) { this.idLetto = idLetto; }
     public boolean isOccupato() { return occupato; }

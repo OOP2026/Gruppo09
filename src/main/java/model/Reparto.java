@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Reparto {
-    private int idReparto; // Uniformato alle convenzioni Java (idreparto nel DB)
+    private int idReparto;
     private String nome;
     private List<Stanza> stanze;
     private List<Medico> medici;
@@ -16,7 +16,7 @@ public class Reparto {
         this.medici = new ArrayList<>();
     }
 
-    // Associazione bidirezionale tra Medico e Reparto
+    // Aggiunge un medico al reparto e aggiorna il riferimento bidirezionale
     public void aggiungiMedico(Medico medico) {
         if (medico != null && !this.medici.contains(medico)) {
             this.medici.add(medico);
@@ -24,7 +24,14 @@ public class Reparto {
         }
     }
 
-    // Realizza la ricerca in memoria
+    // Aggiunge una stanza al reparto
+    public void aggiungiStanza(Stanza stanza) {
+        if (stanza != null && !this.stanze.contains(stanza)) {
+            this.stanze.add(stanza);
+        }
+    }
+
+    // Scorre tutte le stanze del reparto e raccoglie i letti non occupati
     public List<Letto> cercaLettiLiberi() {
         List<Letto> lettiLiberi = new ArrayList<>();
         for (Stanza stanza : stanze) {
@@ -34,10 +41,12 @@ public class Reparto {
     }
 
     public void mostraInfo() {
-        System.out.println("Reparto ID: " + idReparto + " | Nome: " + nome + " | Medici assegnati: " + medici.size());
+        System.out.println("Reparto ID: " + idReparto +
+                " | Nome: " + nome +
+                " | Medici: " + medici.size() +
+                " | Stanze: " + stanze.size());
     }
 
-    // Getter e Setter
     public int getIdReparto() { return idReparto; }
     public void setIdReparto(int idReparto) { this.idReparto = idReparto; }
     public String getNome() { return nome; }

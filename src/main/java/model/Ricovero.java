@@ -29,24 +29,24 @@ public class Ricovero {
         this.oraDimissioneEffettiva = null;
     }
 
-    // Verifica la sovrapposizione del letto interpellando il rispettivo DAO
-    public boolean checkSovrapposizione(dao.RicoveroDAO ricoveroDao) {
-        return ricoveroDao.checkSovrapposizione(this);
-    }
-
-    // Controlla in memoria se il ricovero è ancora attivo (mancata dimissione)
+    // Controlla in memoria se il paziente non è ancora stato dimesso
     public boolean inCorso() {
         return dataDimissioneEffettiva == null;
+    }
+
+    // Controlla se la dimissione prevista cade nella data passata come parametro
+    public boolean inScadenzaIl(LocalDate data) {
+        return dataDimissionePrevista != null && dataDimissionePrevista.equals(data);
     }
 
     public void mostraInfo() {
         System.out.println("Ricovero ID: " + idRicovero +
                 " | Paziente: " + paziente.getNome() + " " + paziente.getCognome() +
                 " | Letto ID: " + letto.getIdLetto() +
-                " | Dal: " + dataInizio + " al: " + dataDimissionePrevista);
+                " | Dal: " + dataInizio +
+                " | Dimissione prevista: " + dataDimissionePrevista);
     }
 
-    // Getter & Setter
     public int getIdRicovero() { return idRicovero; }
     public void setIdRicovero(int idRicovero) { this.idRicovero = idRicovero; }
     public LocalDate getDataInizio() { return dataInizio; }
@@ -54,13 +54,13 @@ public class Ricovero {
     public LocalTime getOraInizio() { return oraInizio; }
     public void setOraInizio(LocalTime oraInizio) { this.oraInizio = oraInizio; }
     public LocalDate getDataDimissionePrevista() { return dataDimissionePrevista; }
-    public void setDataDimissionePrevista(LocalDate dataDimissionePrevista) { this.dataDimissionePrevista = dataDimissionePrevista; }
+    public void setDataDimissionePrevista(LocalDate d) { this.dataDimissionePrevista = d; }
     public LocalTime getOraDimissionePrevista() { return oraDimissionePrevista; }
-    public void setOraDimissionePrevista(LocalTime oraDimissionePrevista) { this.oraDimissionePrevista = oraDimissionePrevista; }
+    public void setOraDimissionePrevista(LocalTime t) { this.oraDimissionePrevista = t; }
     public LocalDate getDataDimissioneEffettiva() { return dataDimissioneEffettiva; }
-    public void setDataDimissioneEffettiva(LocalDate dataDimissioneEffettiva) { this.dataDimissioneEffettiva = dataDimissioneEffettiva; }
+    public void setDataDimissioneEffettiva(LocalDate d) { this.dataDimissioneEffettiva = d; }
     public LocalTime getOraDimissioneEffettiva() { return oraDimissioneEffettiva; }
-    public void setOraDimissioneEffettiva(LocalTime oraDimissioneEffettiva) { this.oraDimissioneEffettiva = oraDimissioneEffettiva; }
+    public void setOraDimissioneEffettiva(LocalTime t) { this.oraDimissioneEffettiva = t; }
     public Paziente getPaziente() { return paziente; }
     public void setPaziente(Paziente paziente) { this.paziente = paziente; }
     public Letto getLetto() { return letto; }

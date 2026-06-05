@@ -3,26 +3,21 @@ package implementazioneDao;
 import dao.PazienteDAO;
 import database_connection.ConnessioneDatabase;
 import model.Paziente;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PazientePostgresDAO implements PazienteDAO {
-
     private Connection conn;
 
     public PazientePostgresDAO() {
-        // Recupera la connessione centralizzata
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
     @Override
     public boolean inserisciPaziente(Paziente paziente) {
-        // Clausola ON CONFLICT per gestire inserimento e modifica in un'unica operazione
+        // ON CONFLICT gestisce sia inserimento che aggiornamento in un'unica operazione
         String query = "INSERT INTO paziente (codicefiscale, nome, cognome) VALUES (?, ?, ?) " +
                 "ON CONFLICT (codicefiscale) " +
                 "DO UPDATE SET nome = EXCLUDED.nome, cognome = EXCLUDED.cognome";
@@ -31,9 +26,7 @@ public class PazientePostgresDAO implements PazienteDAO {
             pstmt.setString(1, paziente.getCodiceFiscale());
             pstmt.setString(2, paziente.getNome());
             pstmt.setString(3, paziente.getCognome());
-
-            int righeCoinvolte = pstmt.executeUpdate();
-            return righeCoinvolte > 0;
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -43,19 +36,47 @@ public class PazientePostgresDAO implements PazienteDAO {
     @Override
     public List<Paziente> getAllPazienti() {
         List<Paziente> lista = new ArrayList<>();
-        String query = "SELECT codicefiscale, nome, cognome FROM paziente";
+        String query = "SELECT codicefiscale, nome, cognome FROM paziente ORDER BY cognome ASC";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                // Estratto utilizzando i nomi colonna minuscoli coerenti con PostgreSQL
-                String cf = rs.getString("codicefiscale");
-                String nome = rs.getString("nome");
-                String cognome = rs.getString("cognome");
+                lista.add(new Paziente(
+                        rs.getString("codicefiscale"),
+                        rs.getString("nome"),
+                        rs.getString("cognome")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 
-                Paziente p = new Paziente(cf, nome, cognome);
-                lista.add(p);
+    @Override
+    public List<Paziente> getPazientiInScadenza(LocalDate data) {
+        List<Paziente> lista = new ArrayList<>();
+
+        // Recupera i pazienti la cui dimissione prevista cade nella data indicata
+        String query = "SELECT p.codicefiscale, p.nome, p.cognome " +
+                "FROM paziente p " +
+                "JOIN ricovero r ON p.codicefiscale = r.codpaziente " +
+                "WHERE r.datadimissioneprevista = ? " +
+                "AND r.datadimissioneeffettiva IS NULL " +
+                "ORDER BY p.cognome ASC";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setDate(1, Date.valueOf(data));
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(new Paziente(
+                            rs.getString("codicefiscale"),
+                            rs.getString("nome"),
+                            rs.getString("cognome")
+                    ));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

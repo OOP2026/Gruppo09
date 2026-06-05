@@ -1,6 +1,7 @@
 package dao;
 
 import model.Paziente;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface PazienteDAO {
@@ -9,4 +10,7 @@ public interface PazienteDAO {
 
     // Recupera l'elenco di tutti i pazienti registrati
     List<Paziente> getAllPazienti();
+
+    // Recupera i pazienti con dimissione prevista nella data indicata
+    List<Paziente> getPazientiInScadenza(LocalDate data);
 }
