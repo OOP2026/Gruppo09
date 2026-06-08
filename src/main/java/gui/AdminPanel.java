@@ -13,6 +13,7 @@ public class AdminPanel {
     private JButton btnElencoSostituzioni;
     private JButton btnDimissioni;
     private JButton btnLettiReparto;
+    private JButton btnAssenza;
     private JButton btnLogout;
 
     private Controller controller;
@@ -67,6 +68,16 @@ public class AdminPanel {
             public void actionPerformed(ActionEvent e) {
                 LettiRepartoPanel lettiPanel = new LettiRepartoPanel(controller, frame);
                 lettiPanel.getFrame().setVisible(true);
+                frame.setVisible(false);
+            }
+        });
+
+        // Apre la schermata per registrare un periodo di assenza di un medico
+        btnAssenza.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AssenzaPanel assenzaPanel = new AssenzaPanel(controller, frame);
+                assenzaPanel.getFrame().setVisible(true);
                 frame.setVisible(false);
             }
         });

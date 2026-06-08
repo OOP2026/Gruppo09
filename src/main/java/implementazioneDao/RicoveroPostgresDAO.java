@@ -20,7 +20,6 @@ public class RicoveroPostgresDAO implements RicoveroDAO {
     @Override
     public boolean checkSovrapposizione(Ricovero ricovero) {
         // Controlla se esiste un ricovero attivo sullo stesso letto con date sovrapposte
-        // Copre sia i ricoveri non ancora dimessi che quelli con dimissione effettiva
         String query = "SELECT COUNT(*) FROM ricovero " +
                 "WHERE codiceletto = ? " +
                 "AND idricovero <> ? " +
@@ -44,18 +43,18 @@ public class RicoveroPostgresDAO implements RicoveroDAO {
 
     @Override
     public boolean inserisciRicovero(Ricovero ricovero) {
-        // L'id viene generato automaticamente dal DB con SERIAL, non va passato
-        String query = "INSERT INTO ricovero (codpaziente, codiceletto, datainizio, orainizio, " +
-                "datadimissioneprevista, oradimissioneprevista) VALUES (?, ?, ?, ?, ?, ?)";
+        // Chiama la procedura inserisci_ricovero invece della query diretta
+        String query = "CALL inserisci_ricovero(?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, ricovero.getPaziente().getCodiceFiscale());
-            pstmt.setInt(2, ricovero.getLetto().getIdLetto());
-            pstmt.setDate(3, Date.valueOf(ricovero.getDataInizio()));
-            pstmt.setTime(4, Time.valueOf(ricovero.getOraInizio()));
-            pstmt.setDate(5, Date.valueOf(ricovero.getDataDimissionePrevista()));
-            pstmt.setTime(6, Time.valueOf(ricovero.getOraDimissionePrevista()));
-            return pstmt.executeUpdate() > 0;
+        try (CallableStatement cstmt = conn.prepareCall(query)) {
+            cstmt.setString(1, ricovero.getPaziente().getCodiceFiscale());
+            cstmt.setInt(2, ricovero.getLetto().getIdLetto());
+            cstmt.setDate(3, Date.valueOf(ricovero.getDataInizio()));
+            cstmt.setTime(4, Time.valueOf(ricovero.getOraInizio()));
+            cstmt.setDate(5, Date.valueOf(ricovero.getDataDimissionePrevista()));
+            cstmt.setTime(6, Time.valueOf(ricovero.getOraDimissionePrevista()));
+            cstmt.execute();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

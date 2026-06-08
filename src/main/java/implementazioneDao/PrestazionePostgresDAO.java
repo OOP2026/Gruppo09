@@ -5,7 +5,6 @@ import database_connection.ConnessioneDatabase;
 import model.Medico;
 import model.Prestazione;
 import model.Ricovero;
-import model.Letto;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -132,7 +131,7 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
             return "Errore nel controllo sovrapposizioni: " + e.getMessage();
         }
 
-        // Inserisce la prestazione nel database
+        // Inserisce la prestazione tramite query diretta
         String queryInsert = "INSERT INTO prestazione (tipo, data, orainizio, orafine, esito, idricovero, codmedico) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -153,12 +152,14 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
 
     @Override
     public boolean aggiornaEsito(int idPrestazione, String nuovoEsito) {
-        String query = "UPDATE prestazione SET esito = ? WHERE idprestazione = ?";
+        // Chiama la procedura aggiorna_esito_prestazione invece della query diretta
+        String query = "CALL aggiorna_esito_prestazione(?, ?)";
 
-        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, nuovoEsito);
-            pstmt.setInt(2, idPrestazione);
-            return pstmt.executeUpdate() > 0;
+        try (CallableStatement cstmt = conn.prepareCall(query)) {
+            cstmt.setInt(1, idPrestazione);
+            cstmt.setString(2, nuovoEsito);
+            cstmt.execute();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

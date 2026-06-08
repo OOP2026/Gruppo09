@@ -38,30 +38,6 @@ public class MedicoPostgresDAO implements MedicoDAO {
     }
 
     @Override
-    public List<Medico> getMediciPerReparto(int idReparto) {
-        List<Medico> lista = new ArrayList<>();
-        String query = "SELECT m.matricola, m.username, r.nome AS nome_reparto " +
-                "FROM medico m " +
-                "JOIN reparto r ON m.idreparto = r.idreparto " +
-                "WHERE m.idreparto = ? " +
-                "ORDER BY m.matricola ASC";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, idReparto);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    Reparto rep = new Reparto(idReparto, rs.getString("nome_reparto"));
-                    lista.add(new Medico(rs.getString("username"), "", rs.getString("matricola"), rep));
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return lista;
-    }
-
-    @Override
     public List<Medico> getSostitutiIdonei(String matricolaAssente, LocalDate inizio, LocalDate fine) {
         List<Medico> sostituti = new ArrayList<>();
 

@@ -9,9 +9,6 @@ public interface MedicoDAO {
     // Recupera l'elenco completo dei medici
     List<Medico> getAllMedici();
 
-    // Recupera i medici che appartengono a un determinato reparto
-    List<Medico> getMediciPerReparto(int idReparto);
-
     // Estrae i possibili sostituti per un medico assente in un determinato periodo
     List<Medico> getSostitutiIdonei(String matricolaAssente, LocalDate inizio, LocalDate fine);
 

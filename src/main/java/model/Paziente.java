@@ -11,7 +11,7 @@ public class Paziente {
         this.cognome = cognome;
     }
 
-    // Restituisce una stringa riassuntiva del paziente per le liste della GUI
+    // Restituisce una stringa riassuntiva del paziente
     public String getInfoBase() {
         return nome + " " + cognome + " - " + codiceFiscale;
     }

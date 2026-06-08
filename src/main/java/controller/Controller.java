@@ -19,6 +19,7 @@ public class Controller {
     private final MedicoDAO medicoDao;
     private final PrestazioneDAO prestazioneDao;
     private final LettoDAO lettoDao;
+    private final AssenzaDAO assenzaDao;
 
     public Controller() {
         this.utenteDao      = new UtentePostgresDAO();
@@ -27,6 +28,7 @@ public class Controller {
         this.medicoDao      = new MedicoPostgresDAO();
         this.prestazioneDao = new PrestazionePostgresDAO();
         this.lettoDao       = new LettoPostgresDAO();
+        this.assenzaDao     = new AssenzaPostgresDAO();
     }
 
     // -------------------------------------------------------------------------
@@ -90,6 +92,18 @@ public class Controller {
         return lettoDao.getLettiPerReparto(idReparto);
     }
 
+    // Registra un periodo di assenza per malattia di un medico
+    public boolean inserisciAssenza(String codMedico, LocalDate dataInizio, LocalDate dataFine) {
+        if (!(utenteLoggato instanceof Admin)) return false;
+        return assenzaDao.inserisciAssenza(codMedico, dataInizio, dataFine);
+    }
+
+    // Restituisce il numero di ricoveri attivi in un reparto
+    public int contaRicoveriAttivi(int idReparto) {
+        if (!(utenteLoggato instanceof Admin)) return 0;
+        return assenzaDao.contaRicoveriAttivi(idReparto);
+    }
+
     // -------------------------------------------------------------------------
     // FUNZIONALITÀ MEDICO
     // -------------------------------------------------------------------------
@@ -137,16 +151,7 @@ public class Controller {
         return medicoDao.getAllMedici();
     }
 
-    public List<Medico> recuperaMediciPerReparto(int idReparto) {
-        return medicoDao.getMediciPerReparto(idReparto);
-    }
-
     public List<String> recuperaRicoveriPerComboBox() {
         return ricoveroDao.getRicoveriAttiviPerComboBox();
-    }
-
-    public boolean checkDisponibilitaMedico(String matricolaMedico, LocalDate data,
-                                            LocalTime oraInizio, LocalTime oraFine) {
-        return medicoDao.verificaDisponibilita(matricolaMedico, data, oraInizio, oraFine);
     }
 }

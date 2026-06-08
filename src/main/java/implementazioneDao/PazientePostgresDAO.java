@@ -17,16 +17,15 @@ public class PazientePostgresDAO implements PazienteDAO {
 
     @Override
     public boolean inserisciPaziente(Paziente paziente) {
-        // ON CONFLICT gestisce sia inserimento che aggiornamento in un'unica operazione
-        String query = "INSERT INTO paziente (codicefiscale, nome, cognome) VALUES (?, ?, ?) " +
-                "ON CONFLICT (codicefiscale) " +
-                "DO UPDATE SET nome = EXCLUDED.nome, cognome = EXCLUDED.cognome";
+        // Chiama la procedura inserisci_paziente invece della query diretta
+        String query = "CALL inserisci_paziente(?, ?, ?)";
 
-        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, paziente.getCodiceFiscale());
-            pstmt.setString(2, paziente.getNome());
-            pstmt.setString(3, paziente.getCognome());
-            return pstmt.executeUpdate() > 0;
+        try (CallableStatement cstmt = conn.prepareCall(query)) {
+            cstmt.setString(1, paziente.getCodiceFiscale());
+            cstmt.setString(2, paziente.getNome());
+            cstmt.setString(3, paziente.getCognome());
+            cstmt.execute();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

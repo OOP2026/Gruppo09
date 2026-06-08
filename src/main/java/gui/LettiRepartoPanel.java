@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -34,6 +35,8 @@ public class LettiRepartoPanel {
         configuraTabella();
 
         this.frame.pack();
+        // Dimensione minima per garantire che tutti i componenti siano visibili
+        this.frame.setMinimumSize(new Dimension(400, 400));
         this.frame.setLocationRelativeTo(frameChiamante);
 
         btnCerca.addActionListener(new ActionListener() {
@@ -95,17 +98,28 @@ public class LettiRepartoPanel {
         tableModel.setRowCount(0);
         List<Letto> lista = controller.getLettiPerReparto(idReparto);
 
+        // Mostra anche il conteggio dei ricoveri attivi nel reparto
+        int ricoveriAttivi = controller.contaRicoveriAttivi(idReparto);
+
         if (lista.isEmpty()) {
             JOptionPane.showMessageDialog(frame,
                     "Nessun letto trovato per il reparto " + idReparto,
                     "Nessun risultato", JOptionPane.INFORMATION_MESSAGE);
         } else {
+            // Aggiorna il titolo della finestra con il conteggio ricoveri attivi
+            frame.setTitle("Letti Reparto " + idReparto +
+                    " — Ricoveri attivi: " + ricoveriAttivi);
+
             for (Letto l : lista) {
                 tableModel.addRow(new Object[]{
                         l.getIdLetto(),
                         l.isOccupato() ? "OCCUPATO" : "LIBERO"
                 });
             }
+
+            // Ridisegna il pannello dopo il popolamento della tabella
+            frame.revalidate();
+            frame.repaint();
         }
     }
 
