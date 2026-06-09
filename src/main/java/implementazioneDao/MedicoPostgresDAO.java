@@ -10,6 +10,14 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione PostgreSQL del DAO per l'accesso ai dati dei medici.
+ * Gestisce il recupero dei medici, la verifica della disponibilità
+ * e la ricerca dei sostituti idonei in caso di assenza.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class MedicoPostgresDAO implements MedicoDAO {
     private Connection conn;
 

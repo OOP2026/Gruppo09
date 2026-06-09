@@ -8,6 +8,15 @@ import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+/**
+ * Pannello per la registrazione di una nuova prestazione medica.
+ * La data viene impostata automaticamente a oggi dal Controller.
+ * I controlli di turno e sovrapposizione sono delegati al DAO.
+ * Accessibile solo ai medici.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class RegistraPrestazionePanel {
     private JPanel mainPanel;
     private JComboBox<String> cmbRicovero;
@@ -22,6 +31,12 @@ public class RegistraPrestazionePanel {
     private JFrame frameChiamante;
     private Controller controller;
 
+    /**
+     * Costruisce il pannello registrazione prestazione e popola la ComboBox dei ricoveri attivi.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frameChiamante finestra del menu medico da ripristinare alla chiusura
+     */
     public RegistraPrestazionePanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
@@ -52,6 +67,7 @@ public class RegistraPrestazionePanel {
         });
     }
 
+    // Valida i dati inseriti e invia la richiesta di registrazione al controller
     private void eseguiRegistrazione() {
         try {
             String itemSelezionato = (String) cmbRicovero.getSelectedItem();
@@ -98,6 +114,7 @@ public class RegistraPrestazionePanel {
         }
     }
 
+    // Recupera i ricoveri attivi dal controller e popola la ComboBox
     private void popolaMenuRicoveri() {
         List<String> ricoveri = controller.recuperaRicoveriPerComboBox();
         if (ricoveri.isEmpty()) {
@@ -110,6 +127,9 @@ public class RegistraPrestazionePanel {
         }
     }
 
+    /**
+     * @return finestra del pannello registrazione prestazione
+     */
     public JFrame getFrame() {
         return frame;
     }

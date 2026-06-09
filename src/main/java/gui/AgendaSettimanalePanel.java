@@ -8,6 +8,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+/**
+ * Pannello che mostra al medico le prestazioni programmate per i prossimi 7 giorni.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class AgendaSettimanalePanel {
     private JPanel mainPanel;
     private JTable tblSettimanale;
@@ -18,6 +24,12 @@ public class AgendaSettimanalePanel {
     private Controller controller;
     private DefaultTableModel tableModel;
 
+    /**
+     * Costruisce il pannello agenda settimanale e carica le prestazioni della settimana.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frameChiamante finestra del menu medico da ripristinare alla chiusura
+     */
     public AgendaSettimanalePanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
@@ -42,6 +54,7 @@ public class AgendaSettimanalePanel {
         });
     }
 
+    // Configura le colonne della tabella e disabilita la modifica diretta delle celle
     private void configuraTabella() {
         tableModel = new DefaultTableModel() {
             @Override
@@ -59,6 +72,7 @@ public class AgendaSettimanalePanel {
         tblSettimanale.setModel(tableModel);
     }
 
+    // Recupera le prestazioni settimanali dal controller e popola la tabella
     private void caricaDati() {
         tableModel.setRowCount(0);
         List<Prestazione> lista = controller.agendaSettimanale();
@@ -68,7 +82,7 @@ public class AgendaSettimanalePanel {
         } else {
             for (Prestazione p : lista) {
                 int idRicovero = (p.getRicovero() != null) ? p.getRicovero().getIdRicovero() : 0;
-                // Ora usa il campo data diretto della prestazione invece della data del ricovero
+                // Usa il campo data diretto della prestazione invece della data del ricovero
                 Object dataVisita = (p.getData() != null) ? p.getData() : "N.D.";
                 tableModel.addRow(new Object[]{
                         p.getIdPrestazione(),
@@ -83,6 +97,9 @@ public class AgendaSettimanalePanel {
         }
     }
 
+    /**
+     * @return finestra del pannello agenda settimanale
+     */
     public JFrame getFrame() {
         return frame;
     }

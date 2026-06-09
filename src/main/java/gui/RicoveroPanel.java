@@ -9,6 +9,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+/**
+ * Pannello per la registrazione di un nuovo ricovero.
+ * Permette di selezionare paziente e letto e inserire le date del ricovero.
+ * Il controllo sulla disponibilità del letto è delegato al Controller.
+ * Accessibile solo agli amministratori.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class RicoveroPanel {
     private JPanel mainPanel;
     private JComboBox<String> cmbPazienti;
@@ -24,6 +33,12 @@ public class RicoveroPanel {
     private JFrame frameChiamante;
     private Controller controller;
 
+    /**
+     * Costruisce il pannello ricovero e popola le ComboBox con pazienti e letti.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frameChiamante finestra della dashboard admin da ripristinare alla chiusura
+     */
     public RicoveroPanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
@@ -103,6 +118,7 @@ public class RicoveroPanel {
         });
     }
 
+    // Popola le ComboBox con i pazienti e i letti recuperati dal controller
     private void popolaMenuTendina() {
         List<Paziente> listaPazienti = controller.recuperaTuttiPazienti();
         if (listaPazienti != null) {
@@ -119,12 +135,16 @@ public class RicoveroPanel {
         }
     }
 
+    // Ripristina la dashboard admin e dealloca la finestra corrente
     private void chiudiETorna() {
         frameChiamante.setVisible(true);
         frame.setVisible(false);
         frame.dispose();
     }
 
+    /**
+     * @return finestra del pannello registrazione ricovero
+     */
     public JFrame getFrame() {
         return frame;
     }

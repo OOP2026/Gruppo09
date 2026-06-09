@@ -8,6 +8,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione PostgreSQL del DAO per l'accesso ai dati dei pazienti.
+ * Le operazioni di inserimento e aggiornamento utilizzano procedure SQL.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class PazientePostgresDAO implements PazienteDAO {
     private Connection conn;
 
@@ -17,7 +24,7 @@ public class PazientePostgresDAO implements PazienteDAO {
 
     @Override
     public boolean inserisciPaziente(Paziente paziente) {
-        // Chiama la procedura inserisci_paziente invece della query diretta
+        // Chiama la procedura inserisci_paziente che gestisce sia inserimento che aggiornamento
         String query = "CALL inserisci_paziente(?, ?, ?)";
 
         try (CallableStatement cstmt = conn.prepareCall(query)) {
@@ -56,7 +63,6 @@ public class PazientePostgresDAO implements PazienteDAO {
     @Override
     public List<Paziente> getPazientiInScadenza(LocalDate data) {
         List<Paziente> lista = new ArrayList<>();
-
         // Recupera i pazienti la cui dimissione prevista cade nella data indicata
         String query = "SELECT p.codicefiscale, p.nome, p.cognome " +
                 "FROM paziente p " +

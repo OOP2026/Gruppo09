@@ -10,6 +10,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione PostgreSQL del DAO per l'accesso ai dati dei ricoveri ospedalieri.
+ * Il controllo di sovrapposizione usa COALESCE per gestire sia i ricoveri attivi
+ * che quelli già dimessi. L'inserimento avviene tramite procedura SQL.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class RicoveroPostgresDAO implements RicoveroDAO {
     private Connection conn;
 
@@ -20,6 +28,7 @@ public class RicoveroPostgresDAO implements RicoveroDAO {
     @Override
     public boolean checkSovrapposizione(Ricovero ricovero) {
         // Controlla se esiste un ricovero attivo sullo stesso letto con date sovrapposte
+        // COALESCE usa la dimissione effettiva se presente, altrimenti quella prevista
         String query = "SELECT COUNT(*) FROM ricovero " +
                 "WHERE codiceletto = ? " +
                 "AND idricovero <> ? " +
@@ -90,7 +99,6 @@ public class RicoveroPostgresDAO implements RicoveroDAO {
     @Override
     public List<Ricovero> getRicoveriInScadenza(LocalDate data) {
         List<Ricovero> lista = new ArrayList<>();
-
         // Recupera i ricoveri attivi con dimissione prevista nella data indicata
         String query = "SELECT r.idricovero, r.datainizio, r.orainizio, " +
                 "r.datadimissioneprevista, r.oradimissioneprevista, " +

@@ -5,6 +5,13 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Dashboard principale per gli utenti con ruolo Amministratore.
+ * Fornisce l'accesso a tutte le funzionalità amministrative del sistema.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class AdminPanel {
 
     private JPanel mainPanel;
@@ -20,6 +27,13 @@ public class AdminPanel {
     private JFrame frame;
     private JFrame frameChiamante;
 
+    /**
+     * Costruisce la dashboard amministratore e registra tutti i listener.
+     *
+     * @param controller    coordinatore centrale del sistema
+     * @param frame         finestra corrente della dashboard
+     * @param frameChiamante finestra di login da ripristinare al logout
+     */
     public AdminPanel(Controller controller, JFrame frame, JFrame frameChiamante) {
         this.controller = controller;
         this.frame = frame;
@@ -93,6 +107,9 @@ public class AdminPanel {
         });
     }
 
+    /**
+     * @return pannello radice della dashboard amministratore
+     */
     public JPanel getMainPanel() {
         return mainPanel;
     }

@@ -10,6 +10,14 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+/**
+ * Pannello per la visualizzazione dei pazienti in scadenza di dimissione.
+ * Permette di cercare le dimissioni previste per oggi o per una data specifica.
+ * Accessibile solo agli amministratori.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class DimissioniPanel {
 
     private JPanel mainPanel;
@@ -24,6 +32,12 @@ public class DimissioniPanel {
     private Controller controller;
     private DefaultTableModel tableModel;
 
+    /**
+     * Costruisce il pannello dimissioni e configura la tabella dei risultati.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frameChiamante finestra della dashboard admin da ripristinare alla chiusura
+     */
     public DimissioniPanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
@@ -37,7 +51,7 @@ public class DimissioniPanel {
         this.frame.pack();
         this.frame.setLocationRelativeTo(frameChiamante);
 
-        // Carica subito i pazienti in scadenza oggi
+        // Carica i pazienti in scadenza nella giornata odierna
         btnOggi.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -45,7 +59,7 @@ public class DimissioniPanel {
             }
         });
 
-        // Carica i pazienti in scadenza nella data inserita
+        // Carica i pazienti in scadenza nella data inserita dal campo di testo
         btnCerca.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,6 +87,7 @@ public class DimissioniPanel {
         });
     }
 
+    // Configura le colonne della tabella e disabilita la modifica diretta delle celle
     private void configuraTabella() {
         tableModel = new DefaultTableModel() {
             @Override
@@ -86,6 +101,7 @@ public class DimissioniPanel {
         tblPazienti.setModel(tableModel);
     }
 
+    // Recupera i pazienti in scadenza per la data indicata e popola la tabella
     private void caricaPazienti(LocalDate data) {
         tableModel.setRowCount(0);
         List<Paziente> lista = controller.getPazientiInScadenza(data);
@@ -105,6 +121,9 @@ public class DimissioniPanel {
         }
     }
 
+    /**
+     * @return finestra del pannello dimissioni
+     */
     public JFrame getFrame() {
         return frame;
     }

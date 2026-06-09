@@ -1,14 +1,21 @@
 package implementazioneDao;
 
-import dao.AssenzaDAO;
+import dao.AssenzaMedicoDAO;
 import database_connection.ConnessioneDatabase;
 import java.sql.*;
 import java.time.LocalDate;
 
-public class AssenzaPostgresDAO implements AssenzaDAO {
+/**
+ * Implementazione PostgreSQL del DAO per la gestione delle assenze mediche
+ * e il monitoraggio dei ricoveri attivi nei reparti.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
+public class AssenzaMedicoPostgresDAO implements AssenzaMedicoDAO {
     private Connection conn;
 
-    public AssenzaPostgresDAO() {
+    public AssenzaMedicoPostgresDAO() {
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
@@ -31,7 +38,7 @@ public class AssenzaPostgresDAO implements AssenzaDAO {
 
     @Override
     public int contaRicoveriAttivi(int idReparto) {
-        // Chiama la funzione con SELECT invece di CALL
+        // Chiama la funzione SQL con SELECT invece di CALL
         String query = "SELECT conta_ricoveri_attivi(?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(query)) {

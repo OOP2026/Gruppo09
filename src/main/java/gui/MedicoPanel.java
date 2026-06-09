@@ -6,6 +6,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Dashboard principale per gli utenti con ruolo Medico.
+ * Fornisce l'accesso alle funzionalità di agenda e registrazione prestazioni.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class MedicoPanel {
 
     private JPanel mainPanel;
@@ -15,10 +22,16 @@ public class MedicoPanel {
     private JButton btnLogout;
 
     private Controller controller;
-    private JFrame frame;            // Finestra corrente dell'area medica
-    private JFrame frameChiamante;   // Finestra di login precedente
+    private JFrame frame;
+    private JFrame frameChiamante;
 
-    // Il costruttore accetta solo 3 parametri, rispettando l'assenza di dati tra finestre
+    /**
+     * Costruisce la dashboard medico e registra tutti i listener.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frame          finestra corrente della dashboard
+     * @param frameChiamante finestra di login da ripristinare al logout
+     */
     public MedicoPanel(Controller controller, JFrame frame, JFrame frameChiamante) {
         this.controller = controller;
         this.frame = frame;
@@ -54,19 +67,21 @@ public class MedicoPanel {
             }
         });
 
-        // Gestione del logout con ripristino del login e distruzione della sessione
+        // Logout: azzera la sessione, ripristina il login e dealloca la finestra
         btnLogout.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.logout();
                 frameChiamante.setVisible(true);
                 frame.setVisible(false);
-                frame.dispose(); // Dealloca la finestra dalla memoria RAM
+                frame.dispose();
             }
         });
     }
 
-    // Fornisce il pannello radice richiesto dal gestore delle finestre
+    /**
+     * @return pannello radice della dashboard medico
+     */
     public JPanel getMainPanel() {
         return mainPanel;
     }

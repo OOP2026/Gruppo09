@@ -8,6 +8,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+/**
+ * Pannello che mostra al medico le prestazioni programmate per la giornata odierna.
+ * Permette anche di modificare l'esito di una prestazione selezionata.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class AgendaGiornalieraPanel {
     private JPanel mainPanel;
     private JTable tblAgenda;
@@ -20,6 +27,12 @@ public class AgendaGiornalieraPanel {
     private DefaultTableModel tableModel;
     private List<Prestazione> listaPrestazioni;
 
+    /**
+     * Costruisce il pannello agenda giornaliera e carica le prestazioni di oggi.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frameChiamante finestra del menu medico da ripristinare alla chiusura
+     */
     public AgendaGiornalieraPanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
@@ -50,10 +63,11 @@ public class AgendaGiornalieraPanel {
                         selezionata.getEsito());
 
                 if (nuovoEsito != null && !nuovoEsito.trim().isEmpty()) {
-                    boolean ok = controller.aggiornaEsitoPrestazione(selezionata.getIdPrestazione(), nuovoEsito.trim());
+                    boolean ok = controller.aggiornaEsitoPrestazione(
+                            selezionata.getIdPrestazione(), nuovoEsito.trim());
                     if (ok) {
                         JOptionPane.showMessageDialog(frame, "Esito aggiornato con successo.", "Successo", JOptionPane.INFORMATION_MESSAGE);
-                        caricaDati(); // Ricarica la tabella per mostrare il valore aggiornato
+                        caricaDati();
                     } else {
                         JOptionPane.showMessageDialog(frame, "Errore durante l'aggiornamento.", "Errore", JOptionPane.ERROR_MESSAGE);
                     }
@@ -71,6 +85,7 @@ public class AgendaGiornalieraPanel {
         });
     }
 
+    // Configura le colonne della tabella e disabilita la modifica diretta delle celle
     private void configuraTabella() {
         tableModel = new DefaultTableModel() {
             @Override
@@ -87,6 +102,7 @@ public class AgendaGiornalieraPanel {
         tblAgenda.setModel(tableModel);
     }
 
+    // Recupera le prestazioni di oggi dal controller e popola la tabella
     private void caricaDati() {
         tableModel.setRowCount(0);
         listaPrestazioni = controller.agendaGiornaliera();
@@ -108,6 +124,9 @@ public class AgendaGiornalieraPanel {
         }
     }
 
+    /**
+     * @return finestra del pannello agenda giornaliera
+     */
     public JFrame getFrame() {
         return frame;
     }

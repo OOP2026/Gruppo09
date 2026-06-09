@@ -9,6 +9,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+/**
+ * Pannello per la registrazione di un periodo di assenza per malattia di un medico.
+ * Accessibile solo agli amministratori.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class AssenzaPanel {
     private JPanel mainPanel;
     private JComboBox<String> cmbMedici;
@@ -21,6 +28,12 @@ public class AssenzaPanel {
     private JFrame frameChiamante;
     private Controller controller;
 
+    /**
+     * Costruisce il pannello assenza e popola la ComboBox con i medici disponibili.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frameChiamante finestra della dashboard admin da ripristinare alla chiusura
+     */
     public AssenzaPanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
@@ -84,8 +97,8 @@ public class AssenzaPanel {
         });
     }
 
+    // Recupera tutti i medici dal controller e popola la ComboBox
     private void popolaMedici() {
-        // Recupera tutti i medici per la ComboBox
         List<Medico> medici = controller.recuperaTuttiMedici();
         if (medici != null) {
             for (Medico m : medici) {
@@ -94,6 +107,9 @@ public class AssenzaPanel {
         }
     }
 
+    /**
+     * @return finestra del pannello registrazione assenza
+     */
     public JFrame getFrame() {
         return frame;
     }

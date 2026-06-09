@@ -11,6 +11,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+/**
+ * Pannello per la visualizzazione dei letti di un reparto con il loro stato di occupazione.
+ * I letti occupati vengono mostrati in rosso come richiesto dalla traccia.
+ * Mostra anche il conteggio dei ricoveri attivi nel titolo della finestra.
+ * Accessibile solo agli amministratori.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class LettiRepartoPanel {
 
     private JPanel mainPanel;
@@ -24,6 +33,12 @@ public class LettiRepartoPanel {
     private Controller controller;
     private DefaultTableModel tableModel;
 
+    /**
+     * Costruisce il pannello letti reparto e configura la tabella con il renderer per i colori.
+     *
+     * @param controller     coordinatore centrale del sistema
+     * @param frameChiamante finestra della dashboard admin da ripristinare alla chiusura
+     */
     public LettiRepartoPanel(Controller controller, JFrame frameChiamante) {
         this.controller = controller;
         this.frameChiamante = frameChiamante;
@@ -66,6 +81,7 @@ public class LettiRepartoPanel {
         });
     }
 
+    // Configura le colonne e il renderer che colora in rosso i letti occupati
     private void configuraTabella() {
         tableModel = new DefaultTableModel() {
             @Override
@@ -94,11 +110,10 @@ public class LettiRepartoPanel {
         });
     }
 
+    // Recupera i letti del reparto e aggiorna il titolo con il conteggio ricoveri attivi
     private void caricaLetti(int idReparto) {
         tableModel.setRowCount(0);
         List<Letto> lista = controller.getLettiPerReparto(idReparto);
-
-        // Mostra anche il conteggio dei ricoveri attivi nel reparto
         int ricoveriAttivi = controller.contaRicoveriAttivi(idReparto);
 
         if (lista.isEmpty()) {
@@ -106,7 +121,6 @@ public class LettiRepartoPanel {
                     "Nessun letto trovato per il reparto " + idReparto,
                     "Nessun risultato", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            // Aggiorna il titolo della finestra con il conteggio ricoveri attivi
             frame.setTitle("Letti Reparto " + idReparto +
                     " — Ricoveri attivi: " + ricoveriAttivi);
 
@@ -117,12 +131,14 @@ public class LettiRepartoPanel {
                 });
             }
 
-            // Ridisegna il pannello dopo il popolamento della tabella
             frame.revalidate();
             frame.repaint();
         }
     }
 
+    /**
+     * @return finestra del pannello letti reparto
+     */
     public JFrame getFrame() {
         return frame;
     }

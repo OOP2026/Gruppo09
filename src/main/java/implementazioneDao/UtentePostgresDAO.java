@@ -11,12 +11,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Implementazione PostgreSQL del DAO per l'autenticazione degli utenti.
+ * Gestisce la verifica delle credenziali e il caricamento dell'oggetto utente
+ * completo con istanziazione polimorfica di Admin o Medico.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class UtentePostgresDAO implements UtenteDAO {
-
     private Connection conn;
 
     public UtentePostgresDAO() {
-        // Recupera la connessione centralizzata dal Singleton
         this.conn = ConnessioneDatabase.getInstance().getConnection();
     }
 
@@ -42,7 +48,7 @@ public class UtentePostgresDAO implements UtenteDAO {
 
     @Override
     public Utente getUtenteByUsername(String username) {
-        // Query con JOIN per caricare l'anagrafica completa e il reparto in caso di utente medico
+        // JOIN tra utente, medico e reparto per caricare tutti i dati in una sola query
         String query = "SELECT u.username, u.password, u.tipoutente, m.matricola, m.idreparto, r.nome AS nome_reparto " +
                 "FROM utente u " +
                 "LEFT JOIN medico m ON u.username = m.username " +
@@ -57,7 +63,7 @@ public class UtentePostgresDAO implements UtenteDAO {
                     String password = rs.getString("password");
                     String tipo = rs.getString("tipoutente");
 
-                    // Istanziazione polimorfica dell'utente specifico con i dati reali del DB
+                    // Istanziazione polimorfica dell'utente in base al tipo trovato nel DB
                     if (tipo.equalsIgnoreCase("ADMIN")) {
                         return new Admin(username, password);
                     } else if (tipo.equalsIgnoreCase("MEDICO")) {

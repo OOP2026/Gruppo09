@@ -11,6 +11,14 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementazione PostgreSQL del DAO per l'accesso ai dati delle prestazioni mediche.
+ * Gestisce l'agenda giornaliera e settimanale, la registrazione di nuove prestazioni
+ * con controlli di turno e sovrapposizione, e l'aggiornamento degli esiti.
+ *
+ * @author Enrico Muselli, Ferdinando Longobardo, Francesco Megna
+ * @version 1.0
+ */
 public class PrestazionePostgresDAO implements PrestazioneDAO {
     private Connection conn;
 
@@ -90,8 +98,9 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
     @Override
     public String registraPrestazione(String matricolaMedico, int idRicovero, String tipo,
                                       LocalDate data, LocalTime oraInizio, LocalTime oraFine, String esito) {
-        // Verifica che la fascia oraria rientri in un turno del medico nel giorno indicato
         String giornoIta = convertiGiorno(data);
+
+        // Verifica che la fascia oraria rientri in un turno del medico nel giorno indicato
         String queryTurno = "SELECT orainizio, orafine FROM turno " +
                 "WHERE codmedico = ? AND LOWER(giornosettimana) = LOWER(?)";
 
@@ -131,7 +140,7 @@ public class PrestazionePostgresDAO implements PrestazioneDAO {
             return "Errore nel controllo sovrapposizioni: " + e.getMessage();
         }
 
-        // Inserisce la prestazione tramite query diretta
+        // Inserisce la prestazione nel database
         String queryInsert = "INSERT INTO prestazione (tipo, data, orainizio, orafine, esito, idricovero, codmedico) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
